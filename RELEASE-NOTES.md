@@ -2,10 +2,12 @@
 
 ## Master
 
+## Current (wizards-1.1.0)
+
 * Library has been significantly rewritten internally to use a new FFI layer. This should probably fix a bunch of bugs (many APIs were previously outright broken), and makes the library more maintainable towards the future.
 * Added `RenderMode.Sdf`.
 
-## Current (wizards-1.0.2)
+## wizards-1.0.2
 
 * Use `libfreetype.so.6` on FreeBSD.
 * General repo cleanup to use modern practices, update to .NET 7.
