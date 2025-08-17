@@ -23,29 +23,26 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.PostScript.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.PostScript
 {
 	/// <summary>
 	/// A structure used to represent data in a CID top-level dictionary.
 	/// </summary>
-	public class FaceDict
+	public unsafe class FaceDict
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private FaceDictRec rec;
+		private CID_FaceDictRec_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal FaceDict(IntPtr reference)
+		internal FaceDict(CID_FaceDictRec_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -59,7 +56,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return new Private(rec.private_dict);
+				return new Private(reference->private_dict);
 			}
 		}
 
@@ -71,7 +68,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.len_buildchar;
+				return reference->len_buildchar;
 			}
 		}
 
@@ -83,7 +80,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return (int)rec.forcebold_threshold;
+				return (int)reference->forcebold_threshold;
 			}
 		}
 
@@ -94,7 +91,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return (int)rec.stroke_width;
+				return (int)reference->stroke_width;
 			}
 		}
 
@@ -106,7 +103,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return (int)rec.expansion_factor;
+				return (int)reference->expansion_factor;
 			}
 		}
 
@@ -117,7 +114,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.paint_type;
+				return reference->paint_type;
 			}
 		}
 
@@ -128,7 +125,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.font_type;
+				return reference->font_type;
 			}
 		}
 
@@ -139,7 +136,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.font_matrix;
+				return reference->font_matrix;
 			}
 		}
 
@@ -150,7 +147,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.font_offset;
+				return reference->font_offset;
 			}
 		}
 
@@ -162,7 +159,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.num_subrs;
+				return reference->num_subrs;
 			}
 		}
 
@@ -175,7 +172,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return (uint)rec.subrmap_offset;
+				return (uint)reference->subrmap_offset;
 			}
 		}
 
@@ -186,21 +183,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.sd_bytes;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<FaceDictRec>(reference);
+				return (int)reference->sd_bytes;
 			}
 		}
 

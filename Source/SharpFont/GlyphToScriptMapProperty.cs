@@ -23,18 +23,16 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
 	/// <summary>
 	/// The data exchange structure for the glyph-to-script-map property.
 	/// </summary>
-	public class GlyphToScriptMapProperty
+	public unsafe class GlyphToScriptMapProperty
 	{
-		private GlyphToScriptMapPropertyRec rec;
+		internal FT_Prop_GlyphToScriptMap_ rec;
 		private Face face;
 
 		/// <summary>
@@ -46,7 +44,7 @@ namespace SharpFont
 			Face = face;
 		}
 
-		internal GlyphToScriptMapProperty(GlyphToScriptMapPropertyRec rec, Face face)
+		internal GlyphToScriptMapProperty(FT_Prop_GlyphToScriptMap_ rec, Face face)
 		{
 			this.rec = rec;
 			this.face = face;
@@ -65,7 +63,7 @@ namespace SharpFont
 			set
 			{
 				face = value;
-				rec.face = face.Reference;
+				rec.face = face.reference;
 			}
 		}
 
@@ -76,20 +74,12 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.map;
+				return (IntPtr)rec.map;
 			}
 
 			set
 			{
-				rec.map = value;
-			}
-		}
-
-		internal GlyphToScriptMapPropertyRec Rec
-		{
-			get
-			{
-				return rec;
+				rec.map = (ushort*)value;
 			}
 		}
 	}

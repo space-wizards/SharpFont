@@ -24,6 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -181,7 +182,7 @@ namespace SharpFont
 		/// <returns>The result of the addition.</returns>
 		public static Fixed16Dot16 Add(Fixed16Dot16 left, Fixed16Dot16 right)
 		{
-			return Fixed16Dot16.FromRawValue(left.value + right.value);
+			return FromRawValue(left.value + right.value);
 		}
 
 		/// <summary>
@@ -192,7 +193,7 @@ namespace SharpFont
 		/// <returns>The result of the subtraction.</returns>
 		public static Fixed16Dot16 Subtract(Fixed16Dot16 left, Fixed16Dot16 right)
 		{
-			return Fixed16Dot16.FromRawValue(left.value - right.value);
+			return FromRawValue(left.value - right.value);
 		}
 
 		/// <summary>
@@ -203,7 +204,7 @@ namespace SharpFont
 		/// <returns>The result of the multiplication.</returns>
 		public static Fixed16Dot16 Multiply(Fixed16Dot16 left, Fixed16Dot16 right)
 		{
-			long mul = (long)left.value * (long)right.value;
+			long mul = left.value * (long)right.value;
 			Fixed16Dot16 ans = new Fixed16Dot16();
 			ans.value = (int)(mul >> 16);
 			return ans;
@@ -228,7 +229,7 @@ namespace SharpFont
 		/// <returns>The result of ‘(a*b)/0x10000’.</returns>
 		public static Fixed16Dot16 MultiplyFix(int a, Fixed16Dot16 b)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_MulFix((IntPtr)a, (IntPtr)b.Value));
+			return FromRawValue((int)Methods.FT_MulFix((IntPtr)a, (IntPtr)b.Value));
 		}
 
 		/// <summary>
@@ -260,7 +261,7 @@ namespace SharpFont
 		/// <returns>The result of ‘(a*0x10000)/b’.</returns>
 		public static Fixed16Dot16 DivideFix(int a, Fixed16Dot16 b)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_DivFix((IntPtr)a, (IntPtr)b.Value));
+			return FromRawValue((int)Methods.FT_DivFix((IntPtr)a, (IntPtr)b.Value));
 		}
 
 		/// <summary><para>
@@ -280,7 +281,7 @@ namespace SharpFont
 		/// </returns>
 		public static Fixed16Dot16 MultiplyDivide(Fixed16Dot16 a, Fixed16Dot16 b, Fixed16Dot16 c)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_MulDiv((IntPtr)a.Value, (IntPtr)b.Value, (IntPtr)c.Value));
+			return FromRawValue((int)Methods.FT_MulDiv((IntPtr)a.Value, (IntPtr)b.Value, (IntPtr)c.Value));
 		}
 
 		/// <summary>
@@ -292,7 +293,7 @@ namespace SharpFont
 		/// <returns>The arc-tangent value (i.e. angle).</returns>
 		public static Fixed16Dot16 Atan2(Fixed16Dot16 x, Fixed16Dot16 y)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_Atan2((IntPtr)x.Value, (IntPtr)y.Value));
+			return FromRawValue((int)Methods.FT_Atan2((IntPtr)x.Value, (IntPtr)y.Value));
 		}
 
 		/// <summary>
@@ -304,7 +305,7 @@ namespace SharpFont
 		/// <returns>Constrained value of ‘value2-value1’.</returns>
 		public static Fixed16Dot16 AngleDiff(Fixed16Dot16 angle1, Fixed16Dot16 angle2)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_Angle_Diff((IntPtr)angle1.Value, (IntPtr)angle2.Value));
+			return FromRawValue((int)Methods.FT_Angle_Diff((IntPtr)angle1.Value, (IntPtr)angle2.Value));
 		}
 
 		#endregion
@@ -538,7 +539,7 @@ namespace SharpFont
 		public Fixed16Dot16 FloorFix()
 		{
 			//TODO does the P/Invoke overhead make this slower than re-implementing in C#? Test it
-			return FromRawValue((int)FT.FT_FloorFix((IntPtr)this.Value));
+			return FromRawValue((int)Methods.FT_FloorFix((IntPtr)Value));
 		}
 
 		/// <summary>
@@ -558,7 +559,7 @@ namespace SharpFont
 		/// <returns>The result of ‘(a + 0x8000) &amp; -0x10000’.</returns>
 		public Fixed16Dot16 RoundFix()
 		{
-			return FromRawValue((int)FT.FT_RoundFix((IntPtr)this.Value));
+			return FromRawValue((int)Methods.FT_RoundFix((IntPtr)Value));
 		}
 
 		/// <summary>
@@ -578,7 +579,7 @@ namespace SharpFont
 		/// <returns>The result of ‘(a + 0x10000 - 1) &amp; -0x10000’.</returns>
 		public Fixed16Dot16 CeilingFix()
 		{
-			return FromRawValue((int)FT.FT_CeilFix((IntPtr)this.Value));
+			return FromRawValue((int)Methods.FT_CeilFix((IntPtr)Value));
 		}
 
 		/// <summary>
@@ -592,7 +593,7 @@ namespace SharpFont
 		/// <returns>The sinus value.</returns>
 		public Fixed16Dot16 Sin()
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_Sin((IntPtr)this.Value));
+			return FromRawValue((int)Methods.FT_Sin((IntPtr)Value));
 		}
 
 		/// <summary>
@@ -606,7 +607,7 @@ namespace SharpFont
 		/// <returns>The cosinus value.</returns>
 		public Fixed16Dot16 Cos()
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_Cos((IntPtr)this.Value));
+			return FromRawValue((int)Methods.FT_Cos((IntPtr)Value));
 		}
 
 		/// <summary>
@@ -616,7 +617,7 @@ namespace SharpFont
 		/// <returns>The tangent value.</returns>
 		public Fixed16Dot16 Tan()
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_Tan((IntPtr)this.Value));
+			return FromRawValue((int)Methods.FT_Tan((IntPtr)Value));
 		}
 
 		/// <summary>
@@ -738,11 +739,10 @@ namespace SharpFont
 		public override bool Equals(object obj)
 		{
 			if (obj is Fixed16Dot16)
-				return this.Equals((Fixed16Dot16)obj);
-			else if (obj is int)
+				return Equals((Fixed16Dot16)obj);
+			if (obj is int)
 				return value == ((Fixed16Dot16)obj).value;
-			else
-				return false;
+			return false;
 		}
 
 		#endregion

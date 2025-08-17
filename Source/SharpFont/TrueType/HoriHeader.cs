@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.TrueType.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.TrueType
 {
@@ -40,20 +38,19 @@ namespace SharpFont.TrueType
 	/// This ensures that a single function in the ‘ttload’ module is able to read both the horizontal and vertical
 	/// headers.
 	/// </para></remarks>
-	public class HoriHeader
+	public unsafe class HoriHeader
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private HoriHeaderRec rec;
+		private TT_HoriHeader_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal HoriHeader(IntPtr reference)
+		internal HoriHeader(TT_HoriHeader_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -67,7 +64,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (int)rec.Version;
+				return (int)reference->Version;
 			}
 		}
 
@@ -84,7 +81,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.Ascender;
+				return reference->Ascender;
 			}
 		}
 
@@ -101,7 +98,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.Descender;
+				return reference->Descender;
 			}
 		}
 
@@ -113,7 +110,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.Line_Gap;
+				return reference->Line_Gap;
 			}
 		}
 
@@ -126,7 +123,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.advance_Width_Max;
+				return reference->advance_Width_Max;
 			}
 		}
 
@@ -137,7 +134,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.min_Left_Side_Bearing;
+				return reference->min_Left_Side_Bearing;
 			}
 		}
 
@@ -148,7 +145,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.min_Right_Side_Bearing;
+				return reference->min_Right_Side_Bearing;
 			}
 		}
 
@@ -160,7 +157,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.xMax_Extent;
+				return reference->xMax_Extent;
 			}
 		}
 
@@ -171,7 +168,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.caret_Slope_Rise;
+				return reference->caret_Slope_Rise;
 			}
 		}
 
@@ -182,7 +179,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.caret_Slope_Run;
+				return reference->caret_Slope_Run;
 			}
 		}
 
@@ -194,7 +191,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.caret_Offset;
+				return reference->caret_Offset;
 			}
 		}
 
@@ -205,7 +202,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.Reserved;
+				return new ReadOnlySpan<short>(reference->Reserved, 4).ToArray();
 			}
 		}
 
@@ -216,7 +213,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.metric_Data_Format;
+				return reference->metric_Data_Format;
 			}
 		}
 
@@ -229,7 +226,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.number_Of_HMetrics;
+				return reference->number_Of_HMetrics;
 			}
 		}
 
@@ -240,7 +237,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.long_metrics;
+				return (IntPtr)reference->long_metrics;
 			}
 		}
 
@@ -251,21 +248,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.short_metrics;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<HoriHeaderRec>(reference);
+				return (IntPtr)reference->short_metrics;
 			}
 		}
 

@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.TrueType.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.TrueType
 {
@@ -34,20 +32,19 @@ namespace SharpFont.TrueType
 	/// structure does not reference the PostScript glyph names, which can be nevertheless accessed with the ‘ttpost’
 	/// module.
 	/// </summary>
-	public class Postscript
+	public unsafe class Postscript
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private PostscriptRec rec;
+		private TT_Postscript_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal Postscript(IntPtr reference)
+		internal Postscript(TT_Postscript_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -61,10 +58,10 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (int)rec.FormatType;
+				return (int)reference->FormatType;
 			}
 		}
-		
+
 		/// <summary>
 		/// Gets the angle of italics, in degrees, counter-clockwise from vertical.
 		/// </summary>
@@ -72,10 +69,10 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (int)rec.italicAngle;
+				return (int)reference->italicAngle;
 			}
 		}
-		
+
 		/// <summary>
 		/// Gets the recommended position of the underline.
 		/// </summary>
@@ -83,10 +80,10 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.underlinePosition;
+				return reference->underlinePosition;
 			}
 		}
-		
+
 		/// <summary>
 		/// Gets the recommended thickness of the underline.
 		/// </summary>
@@ -94,7 +91,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.underlineThickness;
+				return reference->underlineThickness;
 			}
 		}
 
@@ -106,7 +103,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (uint)rec.isFixedPitch;
+				return (uint)reference->isFixedPitch;
 			}
 		}
 
@@ -118,7 +115,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (uint)rec.minMemType42;
+				return (uint)reference->minMemType42;
 			}
 		}
 
@@ -130,7 +127,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (uint)rec.maxMemType42;
+				return (uint)reference->maxMemType42;
 			}
 		}
 
@@ -143,7 +140,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (uint)rec.minMemType1;
+				return (uint)reference->minMemType1;
 			}
 		}
 
@@ -156,21 +153,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (uint)rec.maxMemType1;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<PostscriptRec>(reference);
+				return (uint)reference->maxMemType1;
 			}
 		}
 

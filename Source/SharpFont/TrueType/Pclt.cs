@@ -24,28 +24,26 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.TrueType.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.TrueType
 {
 	/// <summary>
 	/// A structure used to model a TrueType PCLT table. All fields comply to the TrueType specification.
 	/// </summary>
-	public class Pclt
+	public unsafe class Pclt
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private PCLTRec rec;
+		private TT_PCLT_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal Pclt(IntPtr reference)
+		internal Pclt(TT_PCLT_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -59,10 +57,10 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (int)rec.Version;
+				return (int)reference->Version;
 			}
 		}
-		
+
 		/// <summary>
 		/// A unique identifier for the font. Refer to the specification for the meaning of various bits.
 		/// </summary>
@@ -71,7 +69,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (uint)rec.FontNumber;
+				return (uint)reference->FontNumber;
 			}
 		}
 
@@ -83,7 +81,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.Pitch;
+				return reference->Pitch;
 			}
 		}
 
@@ -96,7 +94,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.xHeight;
+				return reference->xHeight;
 			}
 		}
 
@@ -108,7 +106,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.Style;
+				return reference->Style;
 			}
 		}
 
@@ -121,7 +119,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.TypeFamily;
+				return reference->TypeFamily;
 			}
 		}
 
@@ -134,7 +132,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.CapHeight;
+				return reference->CapHeight;
 			}
 		}
 
@@ -147,7 +145,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.SymbolSet;
+				return reference->SymbolSet;
 			}
 		}
 
@@ -159,7 +157,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.TypeFace;
+				return Marshal.PtrToStringAnsi((IntPtr)reference->TypeFace, 16);
 			}
 		}
 
@@ -171,7 +169,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.CharacterComplement;
+				return new ReadOnlySpan<byte>(reference->CharacterComplement, 8).ToArray();
 			}
 		}
 
@@ -183,7 +181,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.FileName;
+				return new ReadOnlySpan<byte>(reference->FileName, 6).ToArray();
 			}
 		}
 
@@ -194,10 +192,10 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.StrokeWeight;
+				return (byte)reference->StrokeWeight;
 			}
 		}
-		
+
 		/// <summary>
 		/// Indicates the stroke weight. Valid values are in the range -5 to 5. Length is 1 byte.
 		/// </summary>
@@ -205,10 +203,10 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.WidthType;
+				return (byte)reference->WidthType;
 			}
 		}
-		
+
 		/// <summary>
 		/// Encodes the serif style. The top two bits indicate sans serif/monoline or serif/contrasting.
 		/// Valid values for the lower 6 bits are in the range 0 to 12. Length is 1 byte.
@@ -217,10 +215,10 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.SerifStyle;
+				return reference->SerifStyle;
 			}
 		}
-		
+
 		/// <summary>
 		/// Reserved. Set to 0.
 		/// </summary>
@@ -228,21 +226,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.Reserved;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<PCLTRec>(reference);
+				return reference->Reserved;
 			}
 		}
 

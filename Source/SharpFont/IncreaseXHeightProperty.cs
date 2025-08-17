@@ -23,17 +23,16 @@ SOFTWARE.*/
 #endregion
 
 using System;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
 	/// <summary>
 	/// The data exchange structure for the increase-x-height property.
 	/// </summary>
-	public class IncreaseXHeightProperty
+	public unsafe class IncreaseXHeightProperty
 	{
-		private IncreaseXHeightPropertyRec rec;
+		internal FT_Prop_IncreaseXHeight_ rec;
 		private Face face;
 
 		/// <summary>
@@ -42,11 +41,11 @@ namespace SharpFont
 		/// <param name="face">The face to increase the X height of.</param>
 		public IncreaseXHeightProperty(Face face)
 		{
-			this.rec.face = face.Reference;
+			rec.face = face.reference;
 			this.face = face;
 		}
 
-		internal IncreaseXHeightProperty(IncreaseXHeightPropertyRec rec, Face face)
+		internal IncreaseXHeightProperty(FT_Prop_IncreaseXHeight_ rec, Face face)
 		{
 			this.rec = rec;
 			this.face = face;
@@ -65,7 +64,7 @@ namespace SharpFont
 			set
 			{
 				face = value;
-				rec.face = face.Reference;
+				rec.face = face.reference;
 			}
 		}
 
@@ -83,14 +82,6 @@ namespace SharpFont
 			set
 			{
 				rec.limit = value;
-			}
-		}
-
-		internal IncreaseXHeightPropertyRec Rec
-		{
-			get
-			{
-				return rec;
 			}
 		}
 	}

@@ -2,3 +2,6 @@
 	path = Dependencies
 	url = https://github.com/Robmaister/SharpFont.Dependencies.git
 	ignore = dirty
+[submodule "freetype"]
+	path = freetype
+	url = https://github.com/space-wizards/freetype.git

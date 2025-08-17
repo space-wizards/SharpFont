@@ -23,7 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -31,12 +31,17 @@ namespace SharpFont
 	/// A handle (pointer) to a raster object. Each object can be used independently to convert an outline into a
 	/// bitmap or pixmap.
 	/// </summary>
-	public class Raster : NativeObject
+	public unsafe class Raster : NativeObject
 	{
+		internal FT_RasterRec_* reference;
+
+		internal override IntPtr UntypedReference => (nint)reference;
+
 		#region Constructors
 
-		internal Raster(IntPtr reference) : base(reference)
+		internal Raster(FT_RasterRec_* reference)
 		{
+			this.reference = reference;
 		}
 
 		#endregion

@@ -24,28 +24,26 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Bdf.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.Bdf
 {
 	/// <summary>
 	/// This structure models a given BDF/PCF property.
 	/// </summary>
-	public class Property
+	public unsafe class Property
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private PropertyRec rec;
+		private readonly BDF_PropertyRec_ rec;
 
 		#endregion
 
 		#region Constructors
 
-		internal Property(IntPtr reference)
+		internal Property(BDF_PropertyRec_ rec)
 		{
-			Reference = reference;
+			this.rec = rec;
 		}
 
 		#endregion
@@ -75,7 +73,7 @@ namespace SharpFont.Bdf
 				if (rec.type != PropertyType.Atom)
 					throw new InvalidOperationException("The property type is not Atom.");
 
-				return Marshal.PtrToStringAnsi(rec.atom);
+				return Marshal.PtrToStringAnsi((IntPtr)rec.u.atom);
 			}
 		}
 
@@ -86,7 +84,7 @@ namespace SharpFont.Bdf
 		{
 			get
 			{
-				return rec.integer;
+				return rec.u.integer;
 			}
 		}
 
@@ -98,21 +96,7 @@ namespace SharpFont.Bdf
 		{
 			get
 			{
-				return rec.cardinal;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<PropertyRec>(reference);
+				return rec.u.cardinal;
 			}
 		}
 

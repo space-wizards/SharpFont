@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 #endregion
 
-using System;
+using SharpFont.Interop;
 
 namespace SharpFont.Cache
 {
@@ -36,36 +36,19 @@ namespace SharpFont.Cache
 	/// <see cref="Node.Unref"/>
 	/// <seealso cref="SBitCache.Lookup"/>
 	/// <seealso cref="ImageCache.Lookup"/>
-	public class Node
+	public unsafe class Node
 	{
 		#region Fields
 
-		private IntPtr reference;
+		private FTC_NodeRec_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal Node(IntPtr reference)
+		internal Node(FTC_NodeRec_* reference)
 		{
-			Reference = reference;
-		}
-
-		#endregion
-
-		#region Properties
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-			}
+			this.reference = reference;
 		}
 
 		#endregion
@@ -79,7 +62,7 @@ namespace SharpFont.Cache
 		/// <param name="manager">The cache manager handle.</param>
 		public void Unref(Manager manager)
 		{
-			FT.FTC_Node_Unref(Reference, manager.Reference);
+			Methods.FTC_Node_Unref(reference, manager.reference);
 		}
 
 		#endregion

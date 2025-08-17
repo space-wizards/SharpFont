@@ -23,29 +23,26 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Cache.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.Cache
 {
 	/// <summary>
 	/// A structure used to model the type of images in a glyph cache.
 	/// </summary>
-	public class ImageType
+	public unsafe class ImageType
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private ImageTypeRec rec;
+		internal FTC_ImageTypeRec_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal ImageType(IntPtr reference)
+		internal ImageType(FTC_ImageTypeRec_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -59,7 +56,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.face_id;
+				return (IntPtr)reference->face_id;
 			}
 		}
 
@@ -70,7 +67,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.width;
+				return (int)reference->width;
 			}
 		}
 
@@ -81,7 +78,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.height;
+				return (int)reference->height;
 			}
 		}
 
@@ -93,21 +90,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.flags;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<ImageTypeRec>(reference);
+				return (LoadFlags)reference->flags;
 			}
 		}
 

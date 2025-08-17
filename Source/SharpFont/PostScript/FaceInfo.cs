@@ -24,28 +24,26 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.PostScript.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.PostScript
 {
 	/// <summary>
 	/// A structure used to represent CID Face information.
 	/// </summary>
-	public class FaceInfo
+	public unsafe class FaceInfo
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private FaceInfoRec rec;
+		private CID_FaceInfoRec_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal FaceInfo(IntPtr reference)
+		internal FaceInfo(CID_FaceInfoRec_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -59,7 +57,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.cid_font_name;
+				return Marshal.PtrToStringAnsi((IntPtr)reference->cid_font_name);
 			}
 		}
 
@@ -70,7 +68,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return (int)rec.cid_version;
+				return (int)reference->cid_version;
 			}
 		}
 
@@ -81,7 +79,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.registry;
+				return Marshal.PtrToStringAnsi((IntPtr)reference->registry);
 			}
 		}
 
@@ -92,7 +90,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.ordering;
+				return Marshal.PtrToStringAnsi((IntPtr)reference->ordering);
 			}
 		}
 
@@ -103,7 +101,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.supplement;
+				return reference->supplement;
 			}
 		}
 
@@ -114,7 +112,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return new FontInfo(rec.font_info);
+				return new FontInfo(reference->font_info);
 			}
 		}
 
@@ -125,7 +123,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.font_bbox;
+				return reference->font_bbox;
 			}
 		}
 
@@ -137,7 +135,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return (uint)rec.uid_base;
+				return (uint)reference->uid_base;
 			}
 		}
 
@@ -148,7 +146,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.num_xuid;
+				return reference->num_xuid;
 			}
 		}
 
@@ -161,9 +159,10 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				uint[] xuid = new uint[rec.xuid.Length];
+				var srcXuids = reference->xuid.AsSpan();
+				uint[] xuid = new uint[srcXuids.Length];
 				for (int i = 0; i < xuid.Length; i++)
-					xuid[i] = (uint)rec.xuid[i];
+					xuid[i] = (uint)srcXuids[i];
 
 				return xuid;
 			}
@@ -177,7 +176,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return (uint)rec.cidmap_offset;
+				return (uint)reference->cidmap_offset;
 			}
 		}
 
@@ -190,7 +189,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.fd_bytes;
+				return (int)reference->fd_bytes;
 			}
 		}
 
@@ -201,7 +200,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.gd_bytes;
+				return (int)reference->gd_bytes;
 			}
 		}
 
@@ -213,7 +212,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return (uint)rec.cid_count;
+				return (uint)reference->cid_count;
 			}
 		}
 
@@ -224,18 +223,24 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.num_dicts;
+				return (int)reference->num_dicts;
 			}
 		}
 
 		/// <summary>
 		/// Gets the set of font dictionaries for this font.
 		/// </summary>
-		public FaceDict FontDicts
+		public FaceDict[] FontDicts
 		{
 			get
 			{
-				return new FaceDict(PInvokeHelper.AbsoluteOffsetOf<FaceInfoRec>(Reference, "font_dicts"));
+				var dicts = new FaceDict[DictsCount];
+				for (var i = 0; i < dicts.Length; i++)
+				{
+					dicts[i] = new FaceDict(&reference->font_dicts[i]);
+				}
+
+				return dicts;
 			}
 		}
 
@@ -247,21 +252,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return (uint)rec.data_offset;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<FaceInfoRec>(reference);
+				return (uint)reference->data_offset;
 			}
 		}
 

@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 		<AssemblyName>SpaceWizards.SharpFont.HarfBuzz</AssemblyName>
-  	<TargetFramework>net7.0</TargetFramework>
+  	<TargetFramework>net9.0</TargetFramework>
 		<Version>0.1</Version>
 		<Company>Robmaister</Company>
 		<Copyright>Copyright © Robert Rouhani 2014-2016</Copyright>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SharpFont\SharpFont.csproj" />

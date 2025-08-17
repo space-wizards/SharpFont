@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -36,20 +34,19 @@ namespace SharpFont
 	/// The ID and function of parameters are driver-specific. See the various <see cref="ParamTag"/> flags for more
 	/// information.
 	/// </remarks>
-	public sealed class Parameter
+	public sealed unsafe class Parameter
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private ParameterRec rec;
+		internal FT_Parameter_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal Parameter(IntPtr reference)
+		internal Parameter(FT_Parameter_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -64,7 +61,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return (ParamTag)rec.tag;
+				return (ParamTag)reference->tag;
 			}
 		}
 
@@ -75,29 +72,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.data;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<ParameterRec>(reference);
-			}
-		}
-
-		internal ParameterRec Record
-		{
-			get
-			{
-				return rec;
+				return (IntPtr)reference->data;
 			}
 		}
 

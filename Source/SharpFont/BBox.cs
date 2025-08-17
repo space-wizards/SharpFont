@@ -24,9 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
 using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
 
 namespace SharpFont
 {
@@ -55,10 +53,10 @@ namespace SharpFont
 		/// <param name="top">The upper bound.</param>
 		public BBox(int left, int bottom, int right, int top)
 		{
-			xMin = (IntPtr)left;
-			yMin = (IntPtr)bottom;
-			xMax = (IntPtr)right;
-			yMax = (IntPtr)top;
+			xMin = left;
+			yMin = bottom;
+			xMax = right;
+			yMax = top;
 		}
 
 		#endregion
@@ -161,7 +159,7 @@ namespace SharpFont
 		public override bool Equals(object obj)
 		{
 			if (obj is BBox)
-				return this.Equals((BBox)obj);
+				return Equals((BBox)obj);
 
 			return false;
 		}

@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -97,18 +96,21 @@ namespace SharpFont
 	/// Note that the ‘bit_test’ and ‘bit_set’ callbacks are required when rendering a monochrome bitmap, as they are
 	/// crucial to implement correct drop-out control as defined in the TrueType specification.
 	/// </para></remarks>
-	public class RasterParams : NativeObject
+	public unsafe class RasterParams : NativeObject
 	{
 		#region Fields
 
-		private RasterParamsRec rec;
+		internal FT_Raster_Params_* reference;
 
 		#endregion
 
+		internal override IntPtr UntypedReference => (nint)reference;
+
 		#region Constructors
 
-		internal RasterParams(IntPtr reference) : base(reference)
+		internal RasterParams(FT_Raster_Params_* reference)
 		{
+			this.reference = reference;
 		}
 
 		#endregion
@@ -122,7 +124,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new FTBitmap(rec.target, null);
+				return new FTBitmap(reference->target, null);
 			}
 		}
 
@@ -133,7 +135,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.source;
+				return (IntPtr)reference->source;
 			}
 		}
 
@@ -144,7 +146,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.flags;
+				return (RasterFlags)reference->flags;
 			}
 		}
 
@@ -155,7 +157,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.gray_spans;
+				return Marshal.GetDelegateForFunctionPointer<RasterSpanFunc>((IntPtr)reference->gray_spans);
 			}
 		}
 
@@ -167,7 +169,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.black_spans;
+				return Marshal.GetDelegateForFunctionPointer<RasterSpanFunc>((IntPtr)reference->black_spans);
 			}
 		}
 
@@ -179,7 +181,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.bit_test;
+				return Marshal.GetDelegateForFunctionPointer<RasterBitTestFunc>((IntPtr)reference->bit_test);
 			}
 		}
 
@@ -191,7 +193,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.bit_set;
+				return Marshal.GetDelegateForFunctionPointer<RasterBitSetFunc>((IntPtr)reference->bit_set);
 			}
 		}
 
@@ -202,7 +204,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.user;
+				return (IntPtr)reference->user;
 			}
 		}
 
@@ -214,21 +216,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.clip_box;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<RasterParamsRec>(value);
+				return reference->clip_box;
 			}
 		}
 

@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.MultipleMasters.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.MultipleMasters
 {
@@ -34,20 +32,19 @@ namespace SharpFont.MultipleMasters
 	/// </para><para>
 	/// Some fields are specific to one format and not to the other.
 	/// </para></summary>
-	public class MMVar
+	public unsafe class MMVar
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private MMVarRec rec;
+		private FT_MM_Var_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal MMVar(IntPtr reference)
+		internal MMVar(FT_MM_Var_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -62,7 +59,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return rec.num_axis;
+				return reference->num_axis;
 			}
 		}
 
@@ -75,7 +72,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return rec.num_designs;
+				return reference->num_designs;
 			}
 		}
 
@@ -89,7 +86,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return rec.num_namedstyles;
+				return reference->num_namedstyles;
 			}
 		}
 
@@ -100,7 +97,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return new VarAxis(rec.axis);
+				return new VarAxis(reference->axis);
 			}
 		}
 
@@ -111,21 +108,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return new VarNamedStyle(rec.namedstyle);
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<MMVarRec>(reference);
+				return new VarNamedStyle(reference->namedstyle);
 			}
 		}
 

@@ -23,23 +23,20 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
 	/// <summary>
 	/// The root glyph structure contains a given glyph image plus its advance width in 16.16 fixed float format.
 	/// </summary>
-	public sealed class Glyph : IDisposable
+	public sealed unsafe class Glyph : IDisposable
 	{
 		#region Fields
 
 		private bool disposed;
 
-		private IntPtr reference;
-		private GlyphRec rec;
+		internal FT_GlyphRec_* reference;
 
 		private Library parentLibrary;
 
@@ -47,9 +44,9 @@ namespace SharpFont
 
 		#region Constructors
 
-		internal Glyph(IntPtr reference, Library parentLibrary)
+		internal Glyph(FT_GlyphRec_* reference, Library parentLibrary)
 		{
-			Reference = reference;
+			this.reference = reference;
 
 			this.parentLibrary = parentLibrary;
 			parentLibrary.AddChildGlyph(this);
@@ -103,7 +100,7 @@ namespace SharpFont
 				if (disposed)
 					throw new ObjectDisposedException("Format", "Cannot access a disposed object.");
 
-				return rec.format;
+				return reference->format;
 			}
 		}
 
@@ -117,27 +114,7 @@ namespace SharpFont
 				if (disposed)
 					throw new ObjectDisposedException("Advance", "Cannot access a disposed object.");
 
-				return rec.advance;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				return reference;
-			}
-
-			set
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<GlyphRec>(reference);
+				return reference->advance;
 			}
 		}
 
@@ -157,8 +134,7 @@ namespace SharpFont
 		{
 			if (g.Format == GlyphFormat.Bitmap)
 				return new BitmapGlyph(g);
-			else
-				throw new InvalidCastException("The glyph's format is not GlyphFormat.Bitmap.");
+			throw new InvalidCastException("The glyph's format is not GlyphFormat.Bitmap.");
 		}
 
 		/// <summary>
@@ -173,8 +149,7 @@ namespace SharpFont
 		{
 			if (g.Format == GlyphFormat.Outline)
 				return new OutlineGlyph(g);
-			else
-				throw new InvalidCastException("The glyph's format is not GlyphFormat.Outline.");
+			throw new InvalidCastException("The glyph's format is not GlyphFormat.Outline.");
 		}
 
 		#endregion
@@ -209,9 +184,9 @@ namespace SharpFont
 			if (disposed)
 				throw new ObjectDisposedException("Glyph", "Cannot access a disposed object.");
 
-			IntPtr glyphRef;
+			FT_GlyphRec_* glyphRef;
 
-			Error err = FT.FT_Glyph_Copy(Reference, out glyphRef);
+			Error err = Methods.FT_Glyph_Copy(reference, &glyphRef);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -231,7 +206,7 @@ namespace SharpFont
 			if (disposed)
 				throw new ObjectDisposedException("Glyph", "Cannot access a disposed object.");
 
-			Error err = FT.FT_Glyph_Transform(Reference, ref matrix, ref delta);
+			Error err = Methods.FT_Glyph_Transform(reference, &matrix, &delta);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -291,7 +266,7 @@ namespace SharpFont
 				throw new ObjectDisposedException("Glyph", "Cannot access a disposed object.");
 
 			BBox box;
-			FT.FT_Glyph_Get_CBox(Reference, mode, out box);
+			Methods.FT_Glyph_Get_CBox(reference, (uint) mode, &box);
 
 			return box;
 		}
@@ -323,10 +298,11 @@ namespace SharpFont
 			if (disposed)
 				throw new ObjectDisposedException("Glyph", "Cannot access a disposed object.");
 
-			IntPtr glyphRef = Reference;
-			Error err = FT.FT_Glyph_To_Bitmap(ref glyphRef, renderMode, ref origin, destroy);
-
-			Reference = glyphRef;
+			Error err;
+			fixed (FT_GlyphRec_** pReference = &reference)
+			{
+				err = Methods.FT_Glyph_To_Bitmap(pReference, renderMode, (FTVector*)(&origin), (byte)(destroy ? 1 : 0));
+			}
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -351,14 +327,14 @@ namespace SharpFont
 			if (stroker == null)
 				throw new ArgumentNullException("stroker");
 
-			IntPtr sourceRef = Reference;
-			Error err = FT.FT_Glyph_Stroke(ref sourceRef, stroker.Reference, destroy);
+			var sourceRef = reference;
+			Error err = Methods.FT_Glyph_Stroke(&sourceRef, stroker.reference, (byte)(destroy ? 1 : 0));
 
 			if (destroy && err == Error.Ok)
 			{
 				//if FT_Glyph_Stroke destroys the glyph, keep the C# side synchronized.
 				disposed = true;
-				reference = IntPtr.Zero;
+				reference = null;
 			}
 
 			if (err != Error.Ok)
@@ -367,8 +343,7 @@ namespace SharpFont
 			//check if the pointer didn't change.
 			if (sourceRef == reference)
 				return this;
-			else
-				return new Glyph(sourceRef, parentLibrary);
+			return new Glyph(sourceRef, parentLibrary);
 		}
 
 		/// <summary>
@@ -390,14 +365,14 @@ namespace SharpFont
 			if (stroker == null)
 				throw new ArgumentNullException("stroker");
 
-			IntPtr sourceRef = Reference;
-			Error err = FT.FT_Glyph_StrokeBorder(ref sourceRef, stroker.Reference, inside, destroy);
+			var sourceRef = reference;
+			Error err = Methods.FT_Glyph_StrokeBorder(&sourceRef, stroker.reference, (byte)(inside ? 1 : 0), (byte)(destroy ? 1 : 0));
 
 			if (destroy && err == Error.Ok)
 			{
 				//if FT_Glyph_Stroke destroys the glyph, keep the C# side synchronized.
 				disposed = true;
-				reference = IntPtr.Zero;
+				reference = null;
 			}
 
 			if (err != Error.Ok)
@@ -406,8 +381,7 @@ namespace SharpFont
 			//check if the pointer didn't change.
 			if (sourceRef == reference)
 				return this;
-			else
-				return new Glyph(sourceRef, parentLibrary );
+			return new Glyph(sourceRef, parentLibrary );
 		}
 
 		#endregion
@@ -427,7 +401,7 @@ namespace SharpFont
 			{
 				disposed = true;
 
-				FT.FT_Done_Glyph(reference);
+				Methods.FT_Done_Glyph(reference);
 
 				// removes itself from the parent Library, with a check to prevent this from happening when Library is
 				// being disposed (Library disposes all it's children with a foreach loop, this causes an
@@ -435,7 +409,7 @@ namespace SharpFont
 				if (!parentLibrary.IsDisposed)
 					parentLibrary.RemoveChildGlyph(this);
 
-				reference = IntPtr.Zero;
+				reference = null;
 			}
 		}
 

@@ -24,11 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
-
 using FT_Long = System.IntPtr;
-using FT_ULong = System.UIntPtr;
 
 namespace SharpFont
 {
@@ -82,7 +78,7 @@ namespace SharpFont
 
 			set
 			{
-				width = (FT_Long)value;
+				width = value;
 			}
 		}
 
@@ -98,7 +94,7 @@ namespace SharpFont
 
 			set
 			{
-				height = (FT_Long)value;
+				height = value;
 			}
 		}
 
@@ -186,9 +182,8 @@ namespace SharpFont
 		public override bool Equals(object obj)
 		{
 			if (obj is SizeRequest)
-				return this.Equals((SizeRequest)obj);
-			else
-				return false;
+				return Equals((SizeRequest)obj);
+			return false;
 		}
 
 		/// <summary>

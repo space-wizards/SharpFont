@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 using SharpFont.TrueType;
 
 namespace SharpFont
@@ -33,12 +31,11 @@ namespace SharpFont
 	/// <summary>
 	/// The base charmap structure.
 	/// </summary>
-	public sealed class CharMap
+	public sealed unsafe class CharMap
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private CharMapRec rec;
+		internal FT_CharMapRec_* reference;
 
 		private Face parentFace;
 
@@ -46,10 +43,10 @@ namespace SharpFont
 
 		#region Constructors
 
-		internal CharMap(IntPtr reference, Face parent)
+		internal CharMap(FT_CharMapRec_* reference, Face parent)
 		{
-			Reference = reference;
-			this.parentFace = parent;
+			this.reference = reference;
+			parentFace = parent;
 		}
 
 		#endregion
@@ -76,7 +73,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.encoding;
+				return reference->encoding;
 			}
 		}
 
@@ -89,7 +86,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.platform_id;
+				return (PlatformId)reference->platform_id;
 			}
 		}
 
@@ -103,21 +100,7 @@ namespace SharpFont
 			get
 			{
 				//TODO find some way of getting a proper encoding ID enum...
-				return rec.encoding_id;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<CharMapRec>(reference);
+				return reference->encoding_id;
 			}
 		}
 
@@ -133,7 +116,7 @@ namespace SharpFont
 		/// <returns>The index into the array of character maps within the face to which ‘charmap’ belongs.</returns>
 		public int GetCharmapIndex()
 		{
-			return FT.FT_Get_Charmap_Index(Reference);
+			return Methods.FT_Get_Charmap_Index(reference);
 		}
 
 		#endregion
@@ -151,7 +134,7 @@ namespace SharpFont
 		[CLSCompliant(false)]
 		public uint GetCMapLanguageId()
 		{
-			return FT.FT_Get_CMap_Language_ID(Reference);
+			return (uint)Methods.FT_Get_CMap_Language_ID(reference);
 		}
 
 		/// <summary>
@@ -160,7 +143,7 @@ namespace SharpFont
 		/// <returns>The format of ‘charmap’. If ‘charmap’ doesn't belong to a TrueType/sfnt face, return -1.</returns>
 		public int GetCMapFormat()
 		{
-			return FT.FT_Get_CMap_Format(Reference);
+			return (int)Methods.FT_Get_CMap_Format(reference);
 		}
 
 		#endregion

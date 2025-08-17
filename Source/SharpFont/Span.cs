@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -40,18 +38,21 @@ namespace SharpFont
 	/// The coverage value is always between 0 and 255. If you want less gray values, the callback function has to
 	/// reduce them.
 	/// </para></remarks>
-	public class Span : NativeObject
+	public unsafe class Span : NativeObject
 	{
 		#region Fields
 
-		private SpanRec rec;
+		internal FT_Span_* reference;
 
 		#endregion
 
+		internal override IntPtr UntypedReference => (nint)reference;
+
 		#region Constructors
 
-		internal Span(IntPtr reference) : base(reference)
+		internal Span(FT_Span_* reference)
 		{
+			this.reference = reference;
 		}
 
 		#endregion
@@ -65,7 +66,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.x;
+				return reference->x;
 			}
 		}
 
@@ -77,7 +78,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.len;
+				return reference->len;
 			}
 		}
 
@@ -89,21 +90,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.coverage;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<SpanRec>(value);
+				return reference->coverage;
 			}
 		}
 

@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -39,12 +37,12 @@ namespace SharpFont
 	/// The corresponding pixel buffer is always owned by <see cref="BitmapGlyph"/> and is thus created and destroyed
 	/// with it.
 	/// </para></remarks>
-	public sealed class BitmapGlyph : IDisposable
+	public sealed unsafe class BitmapGlyph : IDisposable
 	{
 		#region Fields
 
 		private Glyph original;
-		private BitmapGlyphRec rec;
+		private FT_BitmapGlyphRec_* reference;
 
 		#endregion
 
@@ -53,7 +51,7 @@ namespace SharpFont
 		internal BitmapGlyph(Glyph original)
 		{
 			this.original = original;
-			Reference = original.Reference; //generates the rec.
+			reference = (FT_BitmapGlyphRec_*)original.reference; //generates the reference->
 		}
 
 		/// <summary>
@@ -104,7 +102,7 @@ namespace SharpFont
 				if (IsDisposed)
 					throw new ObjectDisposedException("Left", "Cannot access a disposed object.");
 
-				return rec.left;
+				return reference->left;
 			}
 		}
 
@@ -119,7 +117,7 @@ namespace SharpFont
 				if (IsDisposed)
 					throw new ObjectDisposedException("Top", "Cannot access a disposed object.");
 
-				return rec.top;
+				return reference->top;
 			}
 		}
 
@@ -133,26 +131,7 @@ namespace SharpFont
 				if (IsDisposed)
 					throw new ObjectDisposedException("Bitmap", "Cannot access a disposed object.");
 
-				return new FTBitmap(PInvokeHelper.AbsoluteOffsetOf<BitmapGlyphRec>(Reference, "bitmap"), rec.bitmap, null);
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				if (IsDisposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				return original.Reference;
-			}
-
-			set
-			{
-				if (IsDisposed)
-					throw new ObjectDisposedException("Reference", "Cannot modify a disposed object.");
-
-				rec = PInvokeHelper.PtrToStructure<BitmapGlyphRec>(original.Reference);
+				return new FTBitmap(&reference->bitmap, null);
 			}
 		}
 
@@ -181,7 +160,7 @@ namespace SharpFont
 		/// <returns>A <see cref="Glyph"/>.</returns>
 		public Glyph ToGlyph()
 		{
-			return (Glyph)this;
+			return this;
 		}
 
 		/// <summary>

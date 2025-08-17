@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -55,20 +54,19 @@ namespace SharpFont
 	/// <summary>
 	/// A structure used to hold a simple doubly-linked list. These are used in many parts of FreeType.
 	/// </summary>
-	public sealed class FTList
+	public sealed unsafe class FTList
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private ListRec rec;
+		private FT_ListRec_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal FTList(IntPtr reference)
+		internal FTList(FT_ListRec_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -82,7 +80,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new ListNode(rec.head);
+				return new ListNode(reference->head);
 			}
 		}
 
@@ -93,21 +91,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new ListNode(rec.tail);
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<ListRec>(reference);
+				return new ListNode(reference->tail);
 			}
 		}
 
@@ -122,7 +106,7 @@ namespace SharpFont
 		/// <returns>List node. NULL if it wasn't found.</returns>
 		public ListNode Find(IntPtr data)
 		{
-			return new ListNode(FT.FT_List_Find(Reference, data));
+			return new ListNode(Methods.FT_List_Find(reference, (void*)data));
 		}
 
 		/// <summary>
@@ -131,7 +115,7 @@ namespace SharpFont
 		/// <param name="node">The node to append.</param>
 		public void Add(ListNode node)
 		{
-			FT.FT_List_Add(Reference, node.Reference);
+			Methods.FT_List_Add(reference, node.reference);
 		}
 
 		/// <summary>
@@ -140,7 +124,7 @@ namespace SharpFont
 		/// <param name="node">The node to insert.</param>
 		public void Insert(ListNode node)
 		{
-			FT.FT_List_Insert(Reference, node.Reference);
+			Methods.FT_List_Insert(reference, node.reference);
 		}
 
 		/// <summary>
@@ -149,7 +133,7 @@ namespace SharpFont
 		/// <param name="node">The node to remove.</param>
 		public void Remove(ListNode node)
 		{
-			FT.FT_List_Remove(Reference, node.Reference);
+			Methods.FT_List_Remove(reference, node.reference);
 		}
 
 		/// <summary>
@@ -158,7 +142,7 @@ namespace SharpFont
 		/// <param name="node">The node to move.</param>
 		public void Up(ListNode node)
 		{
-			FT.FT_List_Up(Reference, node.Reference);
+			Methods.FT_List_Up(reference, node.reference);
 		}
 
 		/// <summary>
@@ -169,7 +153,10 @@ namespace SharpFont
 		/// <param name="user">A user-supplied field which is passed as the second argument to the iterator.</param>
 		public void Iterate(ListIterator iterator, IntPtr user)
 		{
-			Error err = FT.FT_List_Iterate(Reference, iterator, user);
+			Error err = Methods.FT_List_Iterate(
+				reference,
+				(delegate* unmanaged[Cdecl]<FT_ListNodeRec_*, void*, Error>)Marshal.GetFunctionPointerForDelegate(iterator),
+				(void*)user);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -187,7 +174,11 @@ namespace SharpFont
 		/// <param name="user">A user-supplied field which is passed as the last argument to the destructor.</param>
 		public void Finalize(ListDestructor destroy, Memory memory, IntPtr user)
 		{
-			FT.FT_List_Finalize(Reference, destroy, memory.Reference, user);
+			Methods.FT_List_Finalize(
+				reference,
+				(delegate* unmanaged[Cdecl]<FT_MemoryRec_*, void*, void*, void>)Marshal.GetFunctionPointerForDelegate(destroy),
+				memory.reference,
+				(void*)user);
 		}
 
 		#endregion

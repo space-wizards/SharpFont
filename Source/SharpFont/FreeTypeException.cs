@@ -50,7 +50,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return this.error;
+				return error;
 			}
 		}
 

@@ -23,6 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -30,12 +31,17 @@ namespace SharpFont
 	/// A handle to a given FreeType module object. Each module can be a font driver, a renderer, or anything else that
 	/// provides services to the formers.
 	/// </summary>
-	public sealed class Module : NativeObject
+	public sealed unsafe class Module : NativeObject
 	{
+		internal FT_ModuleRec_* reference;
+
+		internal override IntPtr UntypedReference => (nint)reference;
+
 		#region Constructors
 
-		internal Module(IntPtr reference): base(reference)
+		internal Module(FT_ModuleRec_* reference)
 		{
+			this.reference = reference;
 		}
 
 		#endregion

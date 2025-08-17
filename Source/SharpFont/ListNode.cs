@@ -23,27 +23,28 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
 	/// <summary>
 	/// A structure used to hold a single list element.
 	/// </summary>
-	public class ListNode: NativeObject
+	public unsafe class ListNode: NativeObject
 	{
 		#region Fields
 
-		private ListNodeRec rec;
+		internal FT_ListNodeRec_* reference;
 
 		#endregion
 
+		internal override IntPtr UntypedReference => (IntPtr)reference;
+
 		#region Constructors
 
-		internal ListNode(IntPtr reference): base(reference)
+		internal ListNode(FT_ListNodeRec_* reference)
 		{
+			this.reference = reference;
 		}
 
 		#endregion
@@ -57,10 +58,10 @@ namespace SharpFont
 		{
 			get
 			{
-				if (rec.prev == IntPtr.Zero)
+				if (reference->prev == null)
 					return null;
 
-				return new ListNode(rec.prev);
+				return new ListNode(reference->prev);
 			}
 		}
 
@@ -71,10 +72,10 @@ namespace SharpFont
 		{
 			get
 			{
-				if (rec.next == IntPtr.Zero)
+				if (reference->next == null)
 					return null;
 
-				return new ListNode(rec.next);
+				return new ListNode(reference->next);
 			}
 		}
 
@@ -85,21 +86,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.data;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<ListNodeRec>(value);
+				return (IntPtr)reference->data;
 			}
 		}
 

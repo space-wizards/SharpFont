@@ -23,6 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
+using SharpFont.Interop;
 
 namespace SharpFont.Cache
 {
@@ -30,11 +31,11 @@ namespace SharpFont.Cache
 	/// An opaque handle used to model a charmap cache. This cache is to hold character codes -> glyph indices
 	/// mappings.
 	/// </summary>
-	public class CMapCache
+	public unsafe class CMapCache
 	{
 		#region Fields
 
-		private IntPtr reference;
+		private readonly FTC_CMapCacheRec_* reference;
 
 		#endregion
 
@@ -49,30 +50,14 @@ namespace SharpFont.Cache
 		/// <param name="manager">A handle to the cache manager.</param>
 		public CMapCache(Manager manager)
 		{
-			IntPtr cacheRef;
-			Error err = FT.FTC_CMapCache_New(manager.Reference, out cacheRef);
+			Error err;
+			fixed (FTC_CMapCacheRec_** ptr = &reference)
+			{
+				err = Methods.FTC_CMapCache_New(manager.reference, ptr);
+			}
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
-
-			Reference = cacheRef;
-		}
-
-		#endregion
-
-		#region Properties
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-			}
 		}
 
 		#endregion
@@ -92,7 +77,7 @@ namespace SharpFont.Cache
 		[CLSCompliant(false)]
 		public uint Lookup(IntPtr faceId, int cmapIndex, uint charCode)
 		{
-			return FT.FTC_CMapCache_Lookup(Reference, faceId, cmapIndex, charCode);
+			return Methods.FTC_CMapCache_Lookup(reference, (void*) faceId, cmapIndex, charCode);
 		}
 
 		#endregion

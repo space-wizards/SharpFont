@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.TrueType.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.TrueType
 {
@@ -40,17 +39,17 @@ namespace SharpFont.TrueType
 	/// <see cref="AppleEncodingId"/>
 	/// <see cref="MacEncodingId"/>
 	/// <see cref="MicrosoftEncodingId"/>
-	public class SfntName
+	public unsafe class SfntName
 	{
 		#region Fields
 
-		private SfntNameRec rec;
+		private FT_SfntName_ rec;
 
 		#endregion
 
 		#region Constructors
 
-		internal SfntName(SfntNameRec rec)
+		internal SfntName(FT_SfntName_ rec)
 		{
 			this.rec = rec;
 		}
@@ -67,7 +66,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.platform_id;
+				return (PlatformId)rec.platform_id;
 			}
 		}
 
@@ -117,7 +116,7 @@ namespace SharpFont.TrueType
 				//TODO it may be possible to consolidate all of these properties
 				//if the strings follow some sane structure. Otherwise, leave
 				//them or add more overloads for common encodings like UTF-8.
-				return Marshal.PtrToStringUni(rec.@string, (int) Math.Ceiling(rec.string_len/2.0));
+				return Marshal.PtrToStringUni((IntPtr)rec.@string, (int) Math.Ceiling(rec.string_len/2.0));
 			}
 		}
 
@@ -128,7 +127,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return Marshal.PtrToStringAnsi(rec.@string, (int)rec.string_len);
+				return Marshal.PtrToStringAnsi((IntPtr)rec.@string, (int)rec.string_len);
 			}
 		}
 
@@ -143,7 +142,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.@string;
+				return (IntPtr)rec.@string;
 			}
 		}
 

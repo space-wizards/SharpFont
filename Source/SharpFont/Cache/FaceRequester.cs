@@ -23,7 +23,6 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
 
 namespace SharpFont.Cache
 {
@@ -33,7 +32,7 @@ namespace SharpFont.Cache
 	/// </summary>
 	/// <remarks><para>
 	/// The third parameter ‘req_data’ is the same as the one passed by the client when
-	/// <see cref="Manager(Library, uint, uint, ulong, FaceRequester, IntPtr)"/> is called.
+	/// <see cref="Manager(Library, uint, uint, ulong, FaceRequester, nint)"/> is called.
 	/// </para><para>
 	/// The face requester should not perform funny things on the returned face object, like creating a new
 	/// <see cref="FTSize"/> for it, or setting a transformation through <see cref="Face.SetTransform()"/>!

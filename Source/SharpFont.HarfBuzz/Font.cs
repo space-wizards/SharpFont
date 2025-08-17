@@ -5,7 +5,7 @@ using System;
 
 namespace SharpFont.HarfBuzz
 {
-	public class Font
+	public unsafe class Font
 	{
 		#region Members
 		private IntPtr reference;
@@ -14,7 +14,7 @@ namespace SharpFont.HarfBuzz
 		#region Constructors
 		public static Font FromFTFace(Face face)
 		{
-			return new Font { reference = HB.hb_ft_font_create(face.Reference, IntPtr.Zero) };
+			return new Font { reference = HB.hb_ft_font_create((IntPtr)face.reference, IntPtr.Zero) };
 		}
 		#endregion
 

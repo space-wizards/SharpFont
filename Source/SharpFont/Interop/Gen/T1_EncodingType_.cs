@@ -1,0 +1,10 @@
+namespace SharpFont.Interop;
+
+internal enum T1_EncodingType_
+{
+    T1_ENCODING_TYPE_NONE = 0,
+    T1_ENCODING_TYPE_ARRAY,
+    T1_ENCODING_TYPE_STANDARD,
+    T1_ENCODING_TYPE_ISOLATIN1,
+    T1_ENCODING_TYPE_EXPERT,
+}

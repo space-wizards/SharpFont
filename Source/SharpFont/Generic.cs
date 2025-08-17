@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -52,11 +51,11 @@ namespace SharpFont
 	/// put the address of the glyph cache destructor in the ‘finalizer’ field).
 	/// </para></summary>
 	[Obsolete("Use the Tag property and Disposed event.")]
-	public class Generic
+	public unsafe class Generic
 	{
 		#region Fields
 
-		private GenericRec rec;
+		private FT_Generic_ rec;
 
 		#endregion
 
@@ -71,23 +70,18 @@ namespace SharpFont
 		/// <param name="finalizer">A delegate that gets called when the contained object gets finalized.</param>
 		public Generic(IntPtr data, GenericFinalizer finalizer)
 		{
-			rec.data = data;
+			rec.data = (void*)data;
 			//rec.finalizer = finalizer;
 		}
 
-		internal Generic(GenericRec genInternal)
+		internal Generic(FT_Generic_ genInternal)
 		{
 			rec = genInternal;
 		}
 
-		internal Generic(IntPtr reference)
+		internal Generic(FT_Generic_* reference)
 		{
-			rec = PInvokeHelper.PtrToStructure<GenericRec>(reference);
-		}
-
-		internal Generic(IntPtr reference, int offset)
-			: this(new IntPtr(reference.ToInt64() + offset))
-		{
+			rec = *reference;
 		}
 
 		#endregion
@@ -101,7 +95,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return Marshal.SizeOf(typeof(GenericRec));
+				return sizeof(FT_Generic_);
 			}
 		}
 
@@ -113,12 +107,12 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.data;
+				return (IntPtr)rec.data;
 			}
-			
+
 			set
 			{
-				rec.data = value;
+				rec.data = (void*)value;
 			}
 		}
 
@@ -144,11 +138,9 @@ namespace SharpFont
 		#region Methods
 
 		//TODO make this private and build it into the setters if the reference isn't IntPtr.Zero.
-		internal void WriteToUnmanagedMemory(IntPtr location)
+		internal void WriteToUnmanagedMemory(FT_Generic_* location)
 		{
-			Marshal.WriteIntPtr(location, rec.data);
-			//Marshal.WriteIntPtr(location, IntPtr.Size, Marshal.GetFunctionPointerForDelegate(rec.finalizer));
-			Marshal.WriteIntPtr(location, IntPtr.Size, rec.finalizer);
+			*location = rec;
 		}
 
 		#endregion

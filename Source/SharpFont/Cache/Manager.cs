@@ -23,7 +23,8 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using SharpFont.Interop;
 
 namespace SharpFont.Cache
 {
@@ -33,18 +34,18 @@ namespace SharpFont.Cache
 	/// </para><para>
 	/// The manager intentionally limits the total number of opened <see cref="Face"/> and <see cref="FTSize"/> objects
 	/// to control memory usage. See the ‘max_faces’ and ‘max_sizes’ parameters of
-	/// <see cref="Manager(Library, uint, uint, ulong, FaceRequester, IntPtr)"/>.
+	/// <see cref="Manager(Library, uint, uint, ulong, FaceRequester, nint)"/>.
 	/// </para><para>
 	/// The manager is also used to cache ‘nodes’ of various types while limiting their total memory usage.
 	/// </para><para>
 	/// All limitations are enforced by keeping lists of managed objects in most-recently-used order, and flushing old
 	/// nodes to make room for new ones.
 	/// </para></summary>
-	public sealed class Manager : IDisposable
+	public sealed unsafe class Manager : IDisposable
 	{
 		#region Fields
 
-		private IntPtr reference;
+		internal FTC_ManagerRec_* reference;
 		private Library parentLibrary;
 
 		private bool disposed;
@@ -79,15 +80,17 @@ namespace SharpFont.Cache
 			if (library == null)
 				throw new ArgumentNullException("library");
 
-			IntPtr mgrRef;
-			Error err = FT.FTC_Manager_New(library.Reference, maxFaces, maxSizes, maxBytes, requester, requestData, out mgrRef);
+			Error err;
+			fixed (FTC_ManagerRec_** pReference = &reference)
+			{
+				var pRequester = Marshal.GetFunctionPointerForDelegate(requester);
+				err = Methods.FTC_Manager_New(library.reference, maxFaces, maxSizes, checked((nuint)maxBytes), (delegate* unmanaged[Cdecl]<void*, FT_LibraryRec_*, void*, FT_FaceRec_**, Error>)pRequester, (void*)requestData, pReference);
+			}
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
 
-			Reference = mgrRef;
-
-			this.parentLibrary = library;
+			parentLibrary = library;
 			library.AddChildManager(this);
 		}
 
@@ -114,25 +117,6 @@ namespace SharpFont.Cache
 			}
 		}
 
-		internal IntPtr Reference
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				return reference;
-			}
-
-			set
-			{
-				if (disposed)
-					throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
-
-				reference = value;
-			}
-		}
-
 		#endregion
 
 		#region Public Members
@@ -146,7 +130,7 @@ namespace SharpFont.Cache
 			if (disposed)
 				throw new ObjectDisposedException("Manager", "Cannot access a disposed object.");
 
-			FT.FTC_Manager_Reset(Reference);
+			Methods.FTC_Manager_Reset(reference);
 		}
 
 		/// <summary>
@@ -175,8 +159,8 @@ namespace SharpFont.Cache
 			if (disposed)
 				throw new ObjectDisposedException("Manager", "Cannot access a disposed object.");
 
-			IntPtr faceRef;
-			Error err = FT.FTC_Manager_LookupFace(Reference, faceId, out faceRef);
+			FT_FaceRec_* faceRef;
+			Error err = Methods.FTC_Manager_LookupFace(reference, &faceId, &faceRef);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -209,8 +193,8 @@ namespace SharpFont.Cache
 			if (disposed)
 				throw new ObjectDisposedException("Manager", "Cannot access a disposed object.");
 
-			IntPtr sizeRef;
-			Error err = FT.FTC_Manager_LookupSize(Reference, scaler.Reference, out sizeRef);
+			FT_SizeRec_* sizeRef;
+			Error err = Methods.FTC_Manager_LookupSize(reference, scaler.reference, &sizeRef);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -236,7 +220,7 @@ namespace SharpFont.Cache
 			if (disposed)
 				throw new ObjectDisposedException("Manager", "Cannot access a disposed object.");
 
-			FT.FTC_Manager_RemoveFaceID(Reference, faceId);
+			Methods.FTC_Manager_RemoveFaceID(reference, (void*)faceId);
 		}
 
 		#endregion
@@ -258,8 +242,8 @@ namespace SharpFont.Cache
 			{
 				disposed = true;
 
-				FT.FTC_Manager_Done(reference);
-				reference = IntPtr.Zero;
+				Methods.FTC_Manager_Done(reference);
+				reference = null;
 
 				// removes itself from the parent Library, with a check to prevent this from happening when Library is
 				// being disposed (Library disposes all it's children with a foreach loop, this causes an

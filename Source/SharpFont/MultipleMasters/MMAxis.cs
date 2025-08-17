@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.MultipleMasters.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.MultipleMasters
 {
@@ -34,26 +33,21 @@ namespace SharpFont.MultipleMasters
 	/// </para><para>
 	/// This structure can't be used for GX var fonts.
 	/// </para></summary>
-	public class MMAxis
+	public unsafe class MMAxis
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private MMAxisRec rec;
+		private FT_MM_Axis_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal MMAxis(IntPtr reference)
+		internal MMAxis(FT_MM_Axis_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
-		internal MMAxis(MMAxisRec axisInternal)
-		{
-			this.rec = axisInternal;
-		}
 
 		#endregion
 
@@ -66,7 +60,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return rec.name;
+				return Marshal.PtrToStringAnsi((IntPtr)reference->name);
 			}
 		}
 
@@ -77,7 +71,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return (int)rec.minimum;
+				return (int)reference->minimum;
 			}
 		}
 
@@ -88,21 +82,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return (int)rec.maximum;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<MMAxisRec>(reference);
+				return (int)reference->maximum;
 			}
 		}
 

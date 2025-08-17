@@ -23,8 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -51,33 +50,32 @@ namespace SharpFont
 	/// <code>
 	/// FT_Pos  origin_x	   = 0;
 	///	FT_Pos  prev_rsb_delta = 0;
-	/// 
-	/// 
+	///
+	///
 	///	for all glyphs do
 	///	&lt;compute kern between current and previous glyph and add it to
 	///		`origin_x'&gt;
-	/// 
+	///
 	///	&lt;load glyph with `FT_Load_Glyph'&gt;
-	/// 
+	///
 	/// if ( prev_rsb_delta - face-&gt;glyph-&gt;lsb_delta &gt;= 32 )
 	/// 	origin_x -= 64;
 	/// else if ( prev_rsb_delta - face->glyph-&gt;lsb_delta &lt; -32 )
 	/// 	origin_x += 64;
-	/// 
+	///
 	/// prev_rsb_delta = face-&gt;glyph->rsb_delta;
-	/// 
+	///
 	/// &lt;save glyph image, or render glyph, or ...&gt;
-	/// 
+	///
 	/// origin_x += face-&gt;glyph-&gt;advance.x;
-	/// endfor  
+	/// endfor
 	/// </code>
 	/// </example>
-	public sealed class GlyphSlot
+	public sealed unsafe class GlyphSlot
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private GlyphSlotRec rec;
+		private FT_GlyphSlotRec_* reference;
 
 		private Face parentFace;
 		private Library parentLibrary;
@@ -86,9 +84,9 @@ namespace SharpFont
 
 		#region Constructors
 
-		internal GlyphSlot(IntPtr reference, Face parentFace, Library parentLibrary)
+		internal GlyphSlot(FT_GlyphSlotRec_* reference, Face parentFace, Library parentLibrary)
 		{
-			Reference = reference;
+			this.reference = reference;
 			this.parentFace = parentFace;
 			this.parentLibrary = parentLibrary;
 		}
@@ -128,7 +126,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new GlyphSlot(rec.next, parentFace, parentLibrary);
+				return new GlyphSlot(reference->next, parentFace, parentLibrary);
 			}
 		}
 
@@ -141,7 +139,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new Generic(rec.generic);
+				return new Generic(reference->generic);
 			}
 		}
 
@@ -156,7 +154,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new GlyphMetrics(rec.metrics);
+				return new GlyphMetrics(reference->metrics);
 			}
 		}
 
@@ -169,7 +167,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return Fixed16Dot16.FromRawValue((int)rec.linearHoriAdvance);
+				return Fixed16Dot16.FromRawValue((int)reference->linearHoriAdvance);
 			}
 		}
 
@@ -182,7 +180,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return Fixed16Dot16.FromRawValue((int)rec.linearVertAdvance);
+				return Fixed16Dot16.FromRawValue((int)reference->linearVertAdvance);
 			}
 		}
 
@@ -196,7 +194,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.advance;
+				return *(FTVector26Dot6*)&reference->advance;
 			}
 		}
 
@@ -210,7 +208,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.format;
+				return reference->format;
 			}
 		}
 
@@ -223,7 +221,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new FTBitmap(PInvokeHelper.AbsoluteOffsetOf<GlyphSlotRec>(Reference, "bitmap"), rec.bitmap, parentLibrary);
+				return new FTBitmap(&reference->bitmap, parentLibrary);
 			}
 		}
 
@@ -235,7 +233,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.bitmap_left;
+				return reference->bitmap_left;
 			}
 		}
 
@@ -247,7 +245,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.bitmap_top;
+				return reference->bitmap_top;
 			}
 		}
 
@@ -260,7 +258,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new Outline(PInvokeHelper.AbsoluteOffsetOf<GlyphSlotRec>(Reference, "outline"), rec.outline);
+				return new Outline(&reference->outline);
 			}
 		}
 
@@ -274,32 +272,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.num_subglyphs;
-			}
-		}
-
-		/// <summary>
-		/// Gets an array of subglyph descriptors for composite glyphs. There are ‘num_subglyphs’ elements in there.
-		/// Currently internal to FreeType.
-		/// </summary>
-		public SubGlyph[] Subglyphs
-		{
-			get
-			{
-				int count = (int)SubglyphsCount;
-
-				if (count == 0)
-					return null;
-
-				SubGlyph[] subglyphs = new SubGlyph[count];
-				IntPtr array = rec.subglyphs;
-
-				for (int i = 0; i < count; i++)
-				{
-					subglyphs[i] = new SubGlyph((IntPtr)(array.ToInt64() + IntPtr.Size * i));
-				}
-
-				return subglyphs;
+				return reference->num_subglyphs;
 			}
 		}
 
@@ -311,7 +284,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.control_data;
+				return (IntPtr)reference->control_data;
 			}
 		}
 
@@ -322,7 +295,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return (int)rec.control_len;
+				return (int)reference->control_len;
 			}
 		}
 
@@ -334,7 +307,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return (int)rec.lsb_delta;
+				return (int)reference->lsb_delta;
 			}
 		}
 
@@ -346,7 +319,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return (int)rec.rsb_delta;
+				return (int)reference->rsb_delta;
 			}
 		}
 
@@ -368,21 +341,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.other;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<GlyphSlotRec>(reference);
+				return (IntPtr)reference->other;
 			}
 		}
 
@@ -399,7 +358,7 @@ namespace SharpFont
 		/// <param name="mode">This is the render mode used to render the glyph image into a bitmap.</param>
 		public void RenderGlyph(RenderMode mode)
 		{
-			Error err = FT.FT_Render_Glyph(Reference, mode);
+			Error err = Methods.FT_Render_Glyph(reference, mode);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -424,7 +383,16 @@ namespace SharpFont
 		[CLSCompliant(false)]
 		public void GetSubGlyphInfo(uint subIndex, out int index, out SubGlyphFlags flags, out int arg1, out int arg2, out FTMatrix transform)
 		{
-			Error err = FT.FT_Get_SubGlyph_Info(Reference, subIndex, out index, out flags, out arg1, out arg2, out transform);
+			Error err;
+
+			fixed (int* pIndex = &index)
+			fixed (SubGlyphFlags* pFlags = &flags)
+			fixed (int* pArg1 = &arg1)
+			fixed (int* pArg2 = &arg2)
+			fixed (FTMatrix* pTransform = &transform)
+			{
+				err = Methods.FT_Get_SubGlyph_Info(reference, subIndex, pIndex, (uint*)pFlags, pArg1, pArg2, pTransform);
+			}
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -441,8 +409,8 @@ namespace SharpFont
 		/// <returns>A handle to the glyph object.</returns>
 		public Glyph GetGlyph()
 		{
-			IntPtr glyphRef;
-			Error err = FT.FT_Get_Glyph(Reference, out glyphRef);
+			FT_GlyphRec_* glyphRef;
+			Error err = Methods.FT_Get_Glyph(reference, &glyphRef);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -462,7 +430,7 @@ namespace SharpFont
 		/// </remarks>
 		public void OwnBitmap()
 		{
-			Error err = FT.FT_GlyphSlot_Own_Bitmap(Reference);
+			Error err = Methods.FT_GlyphSlot_Own_Bitmap(reference);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);

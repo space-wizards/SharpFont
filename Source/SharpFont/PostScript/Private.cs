@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.PostScript.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.PostScript
 {
@@ -33,17 +31,17 @@ namespace SharpFont.PostScript
 	/// A structure used to model a Type 1 or Type 2 private dictionary. Note that for Multiple Master fonts, each
 	/// instance has its own Private dictionary.
 	/// </summary>
-	public class Private
+	public unsafe class Private
 	{
 		#region Fields
 
-		private PrivateRec rec;
+		private PS_PrivateRec_ rec;
 
 		#endregion
 
 		#region Constructors
 
-		internal Private(PrivateRec rec)
+		internal Private(PS_PrivateRec_ rec)
 		{
 			this.rec = rec;
 		}
@@ -125,7 +123,10 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.blue_values;
+				fixed (short* ptr = rec.blue_values)
+				{
+					return new ReadOnlySpan<short>(ptr, 14).ToArray();
+				}
 			}
 		}
 
@@ -136,7 +137,10 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.other_blues;
+				fixed (short* ptr = rec.other_blues)
+				{
+					return new ReadOnlySpan<short>(ptr, 10).ToArray();
+				}
 			}
 		}
 
@@ -147,7 +151,10 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.family_blues;
+				fixed (short* ptr = rec.family_blues)
+				{
+					return new ReadOnlySpan<short>(ptr, 14).ToArray();
+				}
 			}
 		}
 
@@ -158,7 +165,10 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.family_other_blues;
+				fixed (short* ptr = rec.family_other_blues)
+				{
+					return new ReadOnlySpan<short>(ptr, 10).ToArray();
+				}
 			}
 		}
 
@@ -206,7 +216,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.standard_width;
+				return rec.standard_width[0];
 			}
 		}
 
@@ -218,7 +228,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.standard_height;
+				return rec.standard_height[0];
 			}
 		}
 
@@ -276,7 +286,10 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.snap_widths;
+				fixed (short* ptr = rec.snap_widths)
+				{
+					return new ReadOnlySpan<short>(ptr, 13).ToArray();
+				}
 			}
 		}
 
@@ -288,7 +301,10 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.snap_heights;
+				fixed (short* ptr = rec.snap_heights)
+				{
+					return new ReadOnlySpan<short>(ptr, 13).ToArray();
+				}
 			}
 		}
 
@@ -337,7 +353,10 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.min_feature;
+				fixed (short* ptr = rec.min_feature)
+				{
+					return new ReadOnlySpan<short>(ptr, 2).ToArray();
+				}
 			}
 		}
 

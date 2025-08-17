@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Cache.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.Cache
 {
@@ -36,20 +34,19 @@ namespace SharpFont.Cache
 	/// This type is mainly used to retrieve <see cref="FTSize"/> objects through the cache manager.
 	/// </remarks>
 	/// <see cref="Manager.LookupSize"/>
-	public class Scaler
+	public unsafe class Scaler
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private ScalerRec rec;
+		internal readonly FTC_ScalerRec_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal Scaler(IntPtr reference)
+		internal Scaler(FTC_ScalerRec_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -63,7 +60,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.face_id;
+				return (IntPtr)reference->face_id;
 			}
 		}
 
@@ -75,7 +72,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.width;
+				return reference->width;
 			}
 		}
 
@@ -87,7 +84,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.height;
+				return reference->height;
 			}
 		}
 
@@ -99,7 +96,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.pixel == 1;
+				return reference->pixel == 1;
 			}
 		}
 
@@ -111,7 +108,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.x_res;
+				return reference->x_res;
 			}
 		}
 
@@ -123,21 +120,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.y_res;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<ScalerRec>(reference);
+				return reference->y_res;
 			}
 		}
 

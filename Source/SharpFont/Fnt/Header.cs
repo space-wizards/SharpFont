@@ -23,8 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-
-using SharpFont.Fnt.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.Fnt
 {
@@ -115,20 +114,19 @@ namespace SharpFont.Fnt
 	/// <summary>
 	/// Windows FNT Header info.
 	/// </summary>
-	public class Header
+	public unsafe class Header
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private HeaderRec rec;
+		private FT_WinFNT_HeaderRec_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal Header(IntPtr reference)
+		internal Header(FT_WinFNT_HeaderRec_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -143,7 +141,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.version;
+				return reference->version;
 			}
 		}
 
@@ -155,7 +153,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return (uint)rec.file_size;
+				return checked((uint)reference->file_size);
 			}
 		}
 
@@ -167,7 +165,8 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.copyright;
+				var span = new ReadOnlySpan<byte>(reference->copyright, 60);
+				return span.ToArray();
 			}
 		}
 
@@ -179,7 +178,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.file_type;
+				return reference->file_type;
 			}
 		}
 
@@ -192,7 +191,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.nominal_point_size;
+				return reference->nominal_point_size;
 			}
 		}
 
@@ -204,7 +203,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.vertical_resolution;
+				return reference->vertical_resolution;
 			}
 		}
 
@@ -216,7 +215,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.horizontal_resolution;
+				return reference->horizontal_resolution;
 			}
 		}
 
@@ -228,7 +227,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.ascent;
+				return reference->ascent;
 			}
 		}
 
@@ -240,7 +239,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.internal_leading;
+				return reference->internal_leading;
 			}
 		}
 
@@ -253,7 +252,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.external_leading;
+				return reference->external_leading;
 			}
 		}
 
@@ -264,7 +263,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return (0x01 & rec.italic) == 0x01;
+				return (0x01 & reference->italic) == 0x01;
 			}
 		}
 
@@ -275,7 +274,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return (0x01 & rec.underline) == 0x01;
+				return (0x01 & reference->underline) == 0x01;
 			}
 		}
 
@@ -286,7 +285,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return (0x01 & rec.strike_out) == 0x01;
+				return (0x01 & reference->strike_out) == 0x01;
 			}
 		}
 
@@ -299,7 +298,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.weight;
+				return reference->weight;
 			}
 		}
 
@@ -310,7 +309,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.charset;
+				return reference->charset;
 			}
 		}
 
@@ -324,7 +323,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.pixel_width;
+				return reference->pixel_width;
 			}
 		}
 
@@ -337,7 +336,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.pixel_height;
+				return reference->pixel_height;
 			}
 		}
 
@@ -348,7 +347,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.pitch_and_family;
+				return reference->pitch_and_family;
 			}
 		}
 
@@ -360,7 +359,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.avg_width;
+				return reference->avg_width;
 			}
 		}
 
@@ -372,7 +371,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.max_width;
+				return reference->max_width;
 			}
 		}
 
@@ -383,7 +382,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.first_char;
+				return reference->first_char;
 			}
 		}
 
@@ -394,7 +393,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.last_char;
+				return reference->last_char;
 			}
 		}
 
@@ -406,7 +405,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.default_char;
+				return reference->default_char;
 			}
 		}
 
@@ -420,7 +419,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.break_char;
+				return reference->break_char;
 			}
 		}
 
@@ -432,7 +431,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.bytes_per_row;
+				return reference->bytes_per_row;
 			}
 		}
 
@@ -445,7 +444,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return (uint)rec.device_offset;
+				return (uint)reference->device_offset;
 			}
 		}
 
@@ -458,7 +457,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return (uint)rec.face_name_offset;
+				return (uint)reference->face_name_offset;
 			}
 		}
 
@@ -471,7 +470,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return (uint)rec.bits_pointer;
+				return (uint)reference->bits_pointer;
 			}
 		}
 
@@ -484,7 +483,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return (uint)rec.bits_offset;
+				return (uint)reference->bits_offset;
 			}
 		}
 
@@ -495,7 +494,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.reserved;
+				return reference->reserved;
 			}
 		}
 
@@ -507,7 +506,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return (Flags)rec.flags;
+				return (Flags)reference->flags;
 			}
 		}
 
@@ -520,7 +519,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.A_space;
+				return reference->A_space;
 			}
 		}
 
@@ -533,7 +532,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.B_space;
+				return reference->B_space;
 			}
 		}
 
@@ -546,7 +545,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.C_space;
+				return reference->C_space;
 			}
 		}
 
@@ -558,7 +557,7 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				return rec.color_table_offset;
+				return reference->color_table_offset;
 			}
 		}
 
@@ -570,25 +569,8 @@ namespace SharpFont.Fnt
 		{
 			get
 			{
-				uint[] reserved1 = new uint[rec.reserved1.Length];
-				for (int i = 0; i < reserved1.Length; i++)
-					reserved1[i] = (uint)rec.reserved1[i];
-
-				return reserved1;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<HeaderRec>(reference);
+				throw new NotImplementedException("Freetype is broken");
+				// return reference->reserved1.AsSpan().ToArray();
 			}
 		}
 

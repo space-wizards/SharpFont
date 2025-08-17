@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.PostScript.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.PostScript
 {
@@ -33,17 +32,17 @@ namespace SharpFont.PostScript
 	/// A structure used to model a Type 1 or Type 2 FontInfo dictionary. Note that for Multiple Master fonts, each
 	/// instance has its own FontInfo dictionary.
 	/// </summary>
-	public class FontInfo
+	public unsafe class FontInfo
 	{
 		#region Fields
 
-		private FontInfoRec rec;
+		private PS_FontInfoRec_ rec;
 
 		#endregion
 
 		#region Constructors
 
-		internal FontInfo(FontInfoRec rec)
+		internal FontInfo(PS_FontInfoRec_ rec)
 		{
 			this.rec = rec;
 		}
@@ -59,7 +58,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.version;
+				return Marshal.PtrToStringAnsi((IntPtr)rec.version);
 			}
 		}
 
@@ -70,7 +69,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.notice;
+				return Marshal.PtrToStringAnsi((IntPtr)rec.notice);
 			}
 		}
 
@@ -81,7 +80,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.full_name;
+				return Marshal.PtrToStringAnsi((IntPtr)rec.full_name);
 			}
 		}
 
@@ -92,7 +91,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.family_name;
+				return Marshal.PtrToStringAnsi((IntPtr)rec.family_name);
 			}
 		}
 
@@ -103,7 +102,7 @@ namespace SharpFont.PostScript
 		{
 			get
 			{
-				return rec.weight;
+				return Marshal.PtrToStringAnsi((IntPtr)rec.weight);
 			}
 		}
 

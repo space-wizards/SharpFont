@@ -23,29 +23,26 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
 	/// <summary>
 	/// The renderer module class descriptor.
 	/// </summary>
-	public class RendererClass
+	public unsafe class RendererClass
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private RendererClassRec rec;
+		internal FT_Renderer_Class_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal RendererClass(IntPtr reference)
+		internal RendererClass(FT_Renderer_Class_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -59,7 +56,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new ModuleClass(reference);
+				return new ModuleClass(&reference->root);
 			}
 		}
 
@@ -71,7 +68,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.glyph_format;
+				return reference->glyph_format;
 			}
 		}
 
@@ -82,7 +79,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.render_glyph;
+				return (IntPtr)reference->render_glyph;
 			}
 		}
 
@@ -93,7 +90,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.transform_glyph;
+				return (IntPtr)reference->transform_glyph;
 			}
 		}
 
@@ -104,7 +101,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.get_glyph_cbox;
+				return (IntPtr)reference->get_glyph_cbox;
 			}
 		}
 
@@ -115,7 +112,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.set_mode;
+				return (IntPtr)reference->set_mode;
 			}
 		}
 
@@ -127,21 +124,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new RasterFuncs(PInvokeHelper.AbsoluteOffsetOf<RendererClassRec>(Reference, "raster_class"));
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<RendererClassRec>(reference);
+				return new RasterFuncs(reference->raster_class);
 			}
 		}
 

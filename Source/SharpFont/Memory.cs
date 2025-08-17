@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -63,18 +62,21 @@ namespace SharpFont
 	/// <summary>
 	/// A structure used to describe a given memory manager to FreeType 2.
 	/// </summary>
-	public class Memory: NativeObject
+	public unsafe class Memory: NativeObject
 	{
 		#region Fields
 
-		private MemoryRec rec;
+		internal FT_MemoryRec_* reference;
 
 		#endregion
 
+		internal override IntPtr UntypedReference => (IntPtr)reference;
+
 		#region Constructors
 
-		internal Memory(IntPtr reference): base(reference)
+		internal Memory(FT_MemoryRec_* reference)
 		{
+			this.reference = reference;
 		}
 
 		#endregion
@@ -88,7 +90,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.user;
+				return (IntPtr)reference->user;
 			}
 		}
 
@@ -99,7 +101,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.alloc;
+				return Marshal.GetDelegateForFunctionPointer<AllocFunc>((IntPtr)reference->alloc);
 			}
 		}
 
@@ -110,7 +112,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.free;
+				return Marshal.GetDelegateForFunctionPointer<FreeFunc>((IntPtr)reference->free);
 			}
 		}
 
@@ -121,21 +123,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.realloc;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<MemoryRec>(value);
+				return Marshal.GetDelegateForFunctionPointer<ReallocFunc>((IntPtr)reference->realloc);
 			}
 		}
 
@@ -156,11 +144,11 @@ namespace SharpFont
 		/// <returns>The length of the used data in output.</returns>
 		public unsafe int GzipUncompress(byte[] input, byte[] output)
 		{
-			IntPtr len = (IntPtr)output.Length;
+			var len = (UIntPtr)output.Length;
 
 			fixed (byte* inPtr = input, outPtr = output)
 			{
-				Error err = FT.FT_Gzip_Uncompress(Reference, (IntPtr)outPtr, ref len, (IntPtr)inPtr, (IntPtr)input.Length);
+				Error err = Methods.FT_Gzip_Uncompress(reference, outPtr, &len, inPtr, (nuint)input.Length);
 
 				if (err != Error.Ok)
 					throw new FreeTypeException(err);

@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -95,7 +94,7 @@ namespace SharpFont
 	/// </code>
 	/// Set the values of ‘shift’ and ‘delta’ to 0 to get the original point coordinates.
 	/// </remarks>
-	public class OutlineFuncs : IDisposable
+	public unsafe class OutlineFuncs : IDisposable
 	{
 		#region Fields
 
@@ -172,7 +171,7 @@ namespace SharpFont
 			cubicToPtr = Marshal.GetFunctionPointerForDelegate(cubicToFunc);
 
 			this.shift = shift;
-			this.delta = (IntPtr) delta;
+			this.delta = delta;
 		}
 
 		#endregion
@@ -312,16 +311,16 @@ namespace SharpFont
 
 		//TODO make a reference parameter instead?
 		//HACK this copies the struct
-		internal OutlineFuncsRec Record
+		internal FT_Outline_Funcs_ Record
 		{
 			get
 			{
 				ThrowIfDisposed();
-				var r = new OutlineFuncsRec();
-				r.moveTo = moveToPtr;
-				r.lineTo = lineToPtr;
-				r.conicTo = conicToPtr;
-				r.cubicTo = cubicToPtr;
+				var r = new FT_Outline_Funcs_();
+				r.move_to = (delegate* unmanaged[Cdecl]<FTVector*, void*, int>)Marshal.GetFunctionPointerForDelegate(moveToPtr);
+				r.line_to = (delegate* unmanaged[Cdecl]<FTVector*, void*, int>)Marshal.GetFunctionPointerForDelegate(lineToPtr);
+				r.conic_to = (delegate* unmanaged[Cdecl]<FTVector*, FTVector*, void*, int>)Marshal.GetFunctionPointerForDelegate(conicToPtr);
+				r.cubic_to = (delegate* unmanaged[Cdecl]<FTVector*, FTVector*, FTVector*, void*, int>)Marshal.GetFunctionPointerForDelegate(cubicToPtr);
 				return r;
 			}
 		}

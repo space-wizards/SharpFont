@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.TrueType.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.TrueType
 {
@@ -36,20 +34,19 @@ namespace SharpFont.TrueType
 	/// <remarks>
 	/// This structure is only used during font loading.
 	/// </remarks>
-	public class MaxProfile
+	public unsafe class MaxProfile
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private MaxProfileRec rec;
+		private TT_MaxProfile_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal MaxProfile(IntPtr reference)
+		internal MaxProfile(TT_MaxProfile_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -63,10 +60,10 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (int)rec.version;
+				return (int)reference->version;
 			}
 		}
-		
+
 		/// <summary>
 		/// Gets the number of glyphs in this TrueType font.
 		/// </summary>
@@ -75,7 +72,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.numGlyphs;
+				return reference->numGlyphs;
 			}
 		}
 
@@ -88,7 +85,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxPoints;
+				return reference->maxPoints;
 			}
 		}
 
@@ -101,7 +98,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxContours;
+				return reference->maxContours;
 			}
 		}
 
@@ -114,7 +111,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxCompositePoints;
+				return reference->maxCompositePoints;
 			}
 		}
 
@@ -127,7 +124,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxCompositeContours;
+				return reference->maxCompositeContours;
 			}
 		}
 
@@ -139,7 +136,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxZones;
+				return reference->maxZones;
 			}
 		}
 
@@ -151,7 +148,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxTwilightPoints;
+				return reference->maxTwilightPoints;
 			}
 		}
 
@@ -163,7 +160,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxStorage;
+				return reference->maxStorage;
 			}
 		}
 
@@ -175,7 +172,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxFunctionDefs;
+				return reference->maxFunctionDefs;
 			}
 		}
 
@@ -187,7 +184,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxInstructionDefs;
+				return reference->maxInstructionDefs;
 			}
 		}
 
@@ -199,7 +196,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxStackElements;
+				return reference->maxStackElements;
 			}
 		}
 
@@ -211,7 +208,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxSizeOfInstructions;
+				return reference->maxSizeOfInstructions;
 			}
 		}
 
@@ -223,7 +220,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxComponentElements;
+				return reference->maxComponentElements;
 			}
 		}
 
@@ -235,21 +232,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.maxComponentDepth;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<MaxProfileRec>(reference);
+				return reference->maxComponentDepth;
 			}
 		}
 

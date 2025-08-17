@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -42,12 +40,12 @@ namespace SharpFont
 	/// </para><para>
 	/// The outline's tables are always owned by the object and are destroyed with it.
 	/// </para></remarks>
-	public class OutlineGlyph : IDisposable
+	public unsafe class OutlineGlyph : IDisposable
 	{
 		#region Fields
 
 		private Glyph original;
-		private OutlineGlyphRec rec;
+		private FT_OutlineGlyphRec_* reference;
 
 		#endregion
 
@@ -56,7 +54,7 @@ namespace SharpFont
 		internal OutlineGlyph(Glyph original)
 		{
 			this.original = original;
-			Reference = original.Reference; //sets the rec
+			reference = (FT_OutlineGlyphRec_*)original.reference; //sets the rec
 		}
 
 		/// <summary>
@@ -106,26 +104,7 @@ namespace SharpFont
 				if (IsDisposed)
 					throw new ObjectDisposedException("Bitmap", "Cannot access a disposed object.");
 
-				return new Outline(PInvokeHelper.AbsoluteOffsetOf<OutlineGlyphRec>(Reference, "outline"), rec.outline);
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				if (IsDisposed)
-					throw new ObjectDisposedException("Bitmap", "Cannot access a disposed object.");
-
-				return original.Reference;
-			}
-
-			set
-			{
-				if (IsDisposed)
-					throw new ObjectDisposedException("Bitmap", "Cannot access a disposed object.");
-
-				rec = PInvokeHelper.PtrToStructure<OutlineGlyphRec>(original.Reference);
+				return new Outline(&reference->outline);
 			}
 		}
 
@@ -154,7 +133,7 @@ namespace SharpFont
 		/// <returns>A <see cref="Glyph"/>.</returns>
 		public Glyph ToGlyph()
 		{
-			return (Glyph)this;
+			return this;
 		}
 
 		/// <summary>

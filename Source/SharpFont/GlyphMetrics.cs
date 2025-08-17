@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -36,27 +34,26 @@ namespace SharpFont
 	/// </summary>
 	/// <remarks>
 	/// If not disabled with <see cref="LoadFlags.NoHinting"/>, the values represent dimensions of the hinted glyph (in
-	/// case hinting is applicable). 
+	/// case hinting is applicable).
 	/// </remarks>
-	public sealed class GlyphMetrics
+	public sealed unsafe class GlyphMetrics
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private GlyphMetricsRec rec;
+		private FT_Glyph_Metrics_ rec;
 
 		#endregion
 
 		#region Constructors
 
-		internal GlyphMetrics(IntPtr reference)
+		internal GlyphMetrics(FT_Glyph_Metrics_* reference)
 		{
-			Reference = reference;
+			rec = *reference;
 		}
 
-		internal GlyphMetrics(GlyphMetricsRec glyphMetInt)
+		internal GlyphMetrics(FT_Glyph_Metrics_ glyphMetInt)
 		{
-			this.rec = glyphMetInt;
+			rec = glyphMetInt;
 		}
 
 		#endregion
@@ -158,20 +155,6 @@ namespace SharpFont
 			get
 			{
 				return Fixed26Dot6.FromRawValue((int)rec.vertAdvance);
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<GlyphMetricsRec>(reference);
 			}
 		}
 

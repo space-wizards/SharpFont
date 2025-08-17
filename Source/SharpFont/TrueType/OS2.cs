@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.TrueType.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.TrueType
 {
@@ -36,20 +34,19 @@ namespace SharpFont.TrueType
 	/// Note that we now support old Mac fonts which do not include an OS/2 table. In this case, the ‘version’ field is
 	/// always set to 0xFFFF.
 	/// </para></summary>
-	public class OS2
+	public unsafe class OS2
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private OS2Rec rec;
+		private TT_OS2_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal OS2(IntPtr reference)
+		internal OS2(TT_OS2_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -64,7 +61,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.version;
+				return reference->version;
 			}
 		}
 
@@ -75,7 +72,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.xAvgCharWidth;
+				return reference->xAvgCharWidth;
 			}
 		}
 
@@ -87,7 +84,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.usWeightClass;
+				return reference->usWeightClass;
 			}
 		}
 
@@ -99,7 +96,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.usWidthClass;
+				return reference->usWidthClass;
 			}
 		}
 
@@ -111,7 +108,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.fsType;
+				return (EmbeddingTypes)reference->fsType;
 			}
 		}
 
@@ -122,7 +119,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.ySubscriptXSize;
+				return reference->ySubscriptXSize;
 			}
 		}
 
@@ -133,7 +130,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.ySubscriptYSize;
+				return reference->ySubscriptYSize;
 			}
 		}
 
@@ -144,7 +141,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.ySubscriptXOffset;
+				return reference->ySubscriptXOffset;
 			}
 		}
 
@@ -155,7 +152,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.ySubscriptYOffset;
+				return reference->ySubscriptYOffset;
 			}
 		}
 
@@ -166,7 +163,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.ySuperscriptXSize;
+				return reference->ySuperscriptXSize;
 			}
 		}
 
@@ -177,7 +174,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.ySuperscriptYSize;
+				return reference->ySuperscriptYSize;
 			}
 		}
 
@@ -188,7 +185,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.ySuperscriptXOffset;
+				return reference->ySuperscriptXOffset;
 			}
 		}
 
@@ -199,7 +196,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.ySuperscriptYOffset;
+				return reference->ySuperscriptYOffset;
 			}
 		}
 
@@ -210,7 +207,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.yStrikeoutSize;
+				return reference->yStrikeoutSize;
 			}
 		}
 
@@ -221,7 +218,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.yStrikeoutPosition;
+				return reference->yStrikeoutPosition;
 			}
 		}
 
@@ -233,7 +230,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.sFamilyClass;
+				return reference->sFamilyClass;
 			}
 		}
 
@@ -246,7 +243,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.panose;
+				return new ReadOnlySpan<byte>(reference->panose, 10).ToArray();
 			}
 		}
 
@@ -258,7 +255,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (uint)rec.ulUnicodeRange1;
+				return (uint)reference->ulUnicodeRange1;
 			}
 		}
 
@@ -270,7 +267,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (uint)rec.ulUnicodeRange2;
+				return (uint)reference->ulUnicodeRange2;
 			}
 		}
 
@@ -282,7 +279,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (uint)rec.ulUnicodeRange3;
+				return (uint)reference->ulUnicodeRange3;
 			}
 		}
 
@@ -294,7 +291,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (uint)rec.ulUnicodeRange4;
+				return (uint)reference->ulUnicodeRange4;
 			}
 		}
 
@@ -305,7 +302,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.achVendID;
+				return new ReadOnlySpan<byte>(reference->achVendID, 4).ToArray();
 			}
 		}
 
@@ -317,7 +314,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.fsSelection;
+				return reference->fsSelection;
 			}
 		}
 
@@ -330,7 +327,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.usFirstCharIndex;
+				return reference->usFirstCharIndex;
 			}
 		}
 
@@ -343,10 +340,10 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.usLastCharIndex;
+				return reference->usLastCharIndex;
 			}
 		}
-		
+
 		/// <summary>
 		/// The ascender value, useful for computing a default line spacing in conjunction with unitsPerEm.
 		/// </summary>
@@ -354,10 +351,10 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.sTypoAscender;
+				return reference->sTypoAscender;
 			}
 		}
-		
+
 		/// <summary>
 		/// The descender value, useful for computing a default line spacing in conjunction with unitsPerEm.
 		/// </summary>
@@ -365,10 +362,10 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.sTypoDescender;
+				return reference->sTypoDescender;
 			}
 		}
-		
+
 		/// <summary>
 		/// The line gap value, useful for computing a default line spacing in conjunction with unitsPerEm.
 		/// </summary>
@@ -376,7 +373,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.sTypoLineGap;
+				return reference->sTypoLineGap;
 			}
 		}
 
@@ -388,7 +385,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.usWinAscent;
+				return reference->usWinAscent;
 			}
 		}
 
@@ -400,7 +397,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.usWinDescent;
+				return reference->usWinDescent;
 			}
 		}
 
@@ -412,7 +409,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (uint)rec.ulCodePageRange1;
+				return (uint)reference->ulCodePageRange1;
 			}
 		}
 
@@ -424,7 +421,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (uint)rec.ulUnicodeRange1;
+				return (uint)reference->ulUnicodeRange1;
 			}
 		}
 
@@ -435,10 +432,10 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.sxHeight;
+				return reference->sxHeight;
 			}
 		}
-		
+
 		/// <summary>
 		/// The approximate height of uppercase letters relative to the baseline.
 		/// </summary>
@@ -446,7 +443,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.sCapHeight;
+				return reference->sCapHeight;
 			}
 		}
 
@@ -459,7 +456,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.usDefaultChar;
+				return reference->usDefaultChar;
 			}
 		}
 
@@ -473,7 +470,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.usBreakChar;
+				return reference->usBreakChar;
 			}
 		}
 
@@ -485,7 +482,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.usMaxContext;
+				return reference->usMaxContext;
 			}
 		}
 
@@ -497,7 +494,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.usLowerOpticalPointSize;
+				return reference->usLowerOpticalPointSize;
 			}
 		}
 
@@ -509,21 +506,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.usUpperOpticalPointSize;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<OS2Rec>(reference);
+				return reference->usUpperOpticalPointSize;
 			}
 		}
 

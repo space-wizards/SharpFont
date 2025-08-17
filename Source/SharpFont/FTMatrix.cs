@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -38,7 +37,7 @@ namespace SharpFont
 	/// </code>
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	public struct FTMatrix : IEquatable<FTMatrix>
+	public unsafe struct FTMatrix : IEquatable<FTMatrix>
 	{
 		#region Fields
 
@@ -59,10 +58,10 @@ namespace SharpFont
 		public FTMatrix(int xx, int xy, int yx, int yy)
 			: this()
 		{
-			this.xx = (IntPtr)xx;
-			this.xy = (IntPtr)xy;
-			this.yx = (IntPtr)yx;
-			this.yy = (IntPtr)yy;
+			this.xx = xx;
+			this.xy = xy;
+			this.yx = yx;
+			this.yy = yy;
 		}
 
 		/// <summary>
@@ -91,7 +90,7 @@ namespace SharpFont
 
 			set
 			{
-				xx = (IntPtr)value.Value;
+				xx = value.Value;
 			}
 		}
 
@@ -107,7 +106,7 @@ namespace SharpFont
 
 			set
 			{
-				xy = (IntPtr)value.Value;
+				xy = value.Value;
 			}
 		}
 
@@ -123,7 +122,7 @@ namespace SharpFont
 
 			set
 			{
-				yx = (IntPtr)value.Value;
+				yx = value.Value;
 			}
 		}
 
@@ -139,7 +138,7 @@ namespace SharpFont
 
 			set
 			{
-				yy = (IntPtr)value.Value;
+				yy = value.Value;
 			}
 		}
 
@@ -183,7 +182,7 @@ namespace SharpFont
 		/// <param name="b">A pointer to matrix ‘b’.</param>
 		public static void Multiply(FTMatrix a, FTMatrix b)
 		{
-			FT.FT_Matrix_Multiply(ref a, ref b);
+			Methods.FT_Matrix_Multiply(&a, &b);
 		}
 
 		/// <summary>
@@ -195,7 +194,10 @@ namespace SharpFont
 		/// <param name="b">A pointer to matrix ‘b’.</param>
 		public void Multiply(FTMatrix b)
 		{
-			FT.FT_Matrix_Multiply(ref this, ref b);
+			fixed (FTMatrix* pThis = &this)
+			{
+				Methods.FT_Matrix_Multiply(pThis, &b);
+			}
 		}
 
 		/// <summary>
@@ -203,7 +205,11 @@ namespace SharpFont
 		/// </summary>
 		public void Invert()
 		{
-			Error err = FT.FT_Matrix_Invert(ref this);
+			Error err;
+			fixed (FTMatrix* pThis = &this)
+			{
+				err = Methods.FT_Matrix_Invert(pThis);
+			}
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -231,9 +237,8 @@ namespace SharpFont
 		public override bool Equals(object obj)
 		{
 			if (obj is FTMatrix)
-				return this.Equals((FTMatrix)obj);
-			else
-				return false;
+				return Equals((FTMatrix)obj);
+			return false;
 		}
 
 		/// <summary>

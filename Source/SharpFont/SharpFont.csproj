@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<AssemblyName>SpaceWizards.SharpFont</AssemblyName>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Version>1.0.2</Version>
 
@@ -13,13 +13,16 @@
 		<Authors>Robmaister, Space Wizards</Authors>
 		<Description>Cross-platform FreeType bindings for C#. This package does not automatically provide a build of Freetype itself, so you will have to deal with this manually. Note that on Windows you cannot use a stock build of freetype.dll, as the build has to be modified (to fix some FFI issues). See this repo for more information: https://github.com/Robmaister/SharpFont.Dependencies</Description>
 		<PackageTags>freetype,sharpfont,font</PackageTags>
-		
+
 		<RepositoryType>Git</RepositoryType>
 		<RepositoryUrl>https://github.com/space-wizards/SharpFont</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/space-wizards/SharpFont</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		
+
 		<!-- SourceLink -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Folder Include="Interop\Gen\" />
+	</ItemGroup>
 </Project>

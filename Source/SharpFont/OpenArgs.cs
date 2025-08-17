@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -62,20 +61,19 @@ namespace SharpFont
 	/// Ideally, both the <see cref="PathName"/> and <see cref="Params"/> fields should be tagged as ‘const’; this is
 	/// missing for API backwards compatibility. In other words, applications should treat them as read-only.
 	/// </remarks>
-	public sealed class OpenArgs
+	public sealed unsafe class OpenArgs
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private OpenArgsRec rec;
+		internal FT_Open_Args_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal OpenArgs(IntPtr reference)
+		internal OpenArgs(FT_Open_Args_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -89,7 +87,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.flags;
+				return (OpenFlags)reference->flags;
 			}
 		}
 
@@ -100,7 +98,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.memory_base;
+				return (IntPtr)reference->memory_base;
 			}
 		}
 
@@ -111,7 +109,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return (int)rec.memory_size;
+				return (int)reference->memory_size;
 			}
 		}
 
@@ -122,7 +120,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.pathname;
+				return Marshal.PtrToStringUTF8((IntPtr)reference->pathname);
 			}
 		}
 
@@ -133,7 +131,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new FTStream(rec.stream);
+				return new FTStream(reference->stream);
 			}
 		}
 
@@ -146,7 +144,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new Module(rec.driver);
+				return new Module(reference->driver);
 			}
 		}
 
@@ -157,7 +155,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.num_params;
+				return reference->num_params;
 			}
 		}
 
@@ -174,28 +172,14 @@ namespace SharpFont
 					return null;
 
 				Parameter[] parameters = new Parameter[count];
-				IntPtr array = rec.@params;
+				var array = reference->@params;
 
 				for (int i = 0; i < count; i++)
 				{
-					parameters[i] = new Parameter(new IntPtr(array.ToInt64() + ParameterRec.SizeInBytes * i));
+					parameters[i] = new Parameter(&array[i]);
 				}
 
 				return parameters;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<OpenArgsRec>(reference);
 			}
 		}
 

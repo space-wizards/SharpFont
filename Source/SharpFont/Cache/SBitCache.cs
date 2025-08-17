@@ -23,7 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
+using SharpFont.Interop;
 
 namespace SharpFont.Cache
 {
@@ -32,11 +32,11 @@ namespace SharpFont.Cache
 	/// anti-aliased pixmaps) in a much more efficient way than the traditional glyph image cache implemented by
 	/// <see cref="ImageCache"/>.
 	/// </summary>
-	public class SBitCache
+	public unsafe class SBitCache
 	{
 		#region Fields
 
-		private IntPtr reference;
+		private FTC_SBitCacheRec_* reference;
 		private Manager parentManager;
 
 		#endregion
@@ -52,31 +52,16 @@ namespace SharpFont.Cache
 			if (manager == null)
 				throw new ArgumentNullException("manager");
 
-			IntPtr cacheRef;
-			Error err = FT.FTC_SBitCache_New(manager.Reference, out cacheRef);
+			Error err;
+			fixed (FTC_SBitCacheRec_** pReference = &reference)
+			{
+				err = Methods.FTC_SBitCache_New(manager.reference, pReference);
+			}
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
 
-			Reference = cacheRef;
 			parentManager = manager;
-		}
-
-		#endregion
-
-		#region Properties
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-			}
 		}
 
 		#endregion
@@ -115,8 +100,9 @@ namespace SharpFont.Cache
 			if (parentManager.IsDisposed)
 				throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
 
-			IntPtr sbitRef, nodeRef;
-			Error err = FT.FTC_SBitCache_Lookup(Reference, type.Reference, gIndex, out sbitRef, out nodeRef);
+			FTC_SBitRec_* sbitRef;
+			FTC_NodeRec_* nodeRef;
+			Error err = Methods.FTC_SBitCache_Lookup(reference, type.reference, gIndex, &sbitRef, &nodeRef);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -158,8 +144,9 @@ namespace SharpFont.Cache
 			if (parentManager.IsDisposed)
 				throw new ObjectDisposedException("Reference", "Cannot access a disposed object.");
 
-			IntPtr sbitRef, nodeRef;
-			Error err = FT.FTC_SBitCache_LookupScaler(Reference, scaler.Reference, loadFlags, gIndex, out sbitRef, out nodeRef);
+			FTC_SBitRec_* sbitRef;
+			FTC_NodeRec_* nodeRef;
+			Error err = Methods.FTC_SBitCache_LookupScaler(reference, scaler.reference, (UIntPtr)loadFlags, gIndex, &sbitRef, &nodeRef);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);

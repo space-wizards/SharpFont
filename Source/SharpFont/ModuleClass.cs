@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -56,18 +55,21 @@ namespace SharpFont
 	/// <summary>
 	/// The module class descriptor.
 	/// </summary>
-	public class ModuleClass : NativeObject
+	public unsafe class ModuleClass : NativeObject
 	{
 		#region Fields
 
-		private ModuleClassRec rec;
+		internal FT_Module_Class_* reference;
 
 		#endregion
 
+		internal override IntPtr UntypedReference => (nint)reference;
+
 		#region Constructors
 
-		internal ModuleClass(IntPtr reference) : base(reference)
+		internal ModuleClass(FT_Module_Class_* reference)
 		{
+			this.reference = reference;
 		}
 
 		#endregion
@@ -82,7 +84,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.module_flags;
+				return (uint)reference->module_flags;
 			}
 		}
 
@@ -93,7 +95,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return (int)rec.module_size;
+				return (int)reference->module_size;
 			}
 		}
 
@@ -104,7 +106,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.module_name;
+				return Marshal.PtrToStringUTF8((IntPtr)reference->module_name);
 			}
 		}
 
@@ -115,7 +117,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return Fixed16Dot16.FromRawValue((int)rec.module_version);
+				return Fixed16Dot16.FromRawValue((int)reference->module_version);
 			}
 		}
 
@@ -127,7 +129,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return Fixed16Dot16.FromRawValue((int)rec.module_requires);
+				return Fixed16Dot16.FromRawValue((int)reference->module_requires);
 			}
 		}
 
@@ -138,7 +140,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.module_interface;
+				return (IntPtr)reference->module_interface;
 			}
 		}
 
@@ -149,7 +151,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.module_init;
+				return Marshal.GetDelegateForFunctionPointer<ModuleConstructor>((IntPtr)reference->module_init);
 			}
 		}
 
@@ -160,7 +162,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.module_done;
+				return Marshal.GetDelegateForFunctionPointer<ModuleDestructor>((IntPtr)reference->module_done);
 			}
 		}
 
@@ -171,21 +173,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.get_interface;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<ModuleClassRec>(value);
+				return Marshal.GetDelegateForFunctionPointer<ModuleRequester>((IntPtr)reference->get_interface);
 			}
 		}
 

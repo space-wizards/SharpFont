@@ -24,28 +24,26 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.MultipleMasters.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.MultipleMasters
 {
 	/// <summary>
 	/// A simple structure used to model a given axis in design space for Multiple Masters and GX var fonts.
 	/// </summary>
-	public class VarAxis
+	public unsafe class VarAxis
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private VarAxisRec rec;
+		private FT_Var_Axis_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal VarAxis(IntPtr reference)
+		internal VarAxis(FT_Var_Axis_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -59,7 +57,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return rec.name;
+				return Marshal.PtrToStringAnsi((IntPtr)reference->name);
 			}
 		}
 
@@ -70,7 +68,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return (int)rec.minimum;
+				return (int)reference->minimum;
 			}
 		}
 
@@ -82,7 +80,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return (int)rec.def;
+				return (int)reference->def;
 			}
 		}
 
@@ -93,7 +91,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return (int)rec.maximum;
+				return (int)reference->maximum;
 			}
 		}
 
@@ -105,7 +103,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return (uint)rec.tag;
+				return (uint)reference->tag;
 			}
 		}
 
@@ -117,21 +115,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return rec.strid;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<VarAxisRec>(reference);
+				return reference->strid;
 			}
 		}
 

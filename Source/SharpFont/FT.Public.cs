@@ -23,17 +23,15 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
 	/// <summary>
 	/// Miscellaneous FreeType2 functions that don't fit anywhere else.
 	/// </summary>
-	public static partial class FT
+	public static unsafe partial class FT
 	{
 		#region Computations
 
@@ -54,7 +52,7 @@ namespace SharpFont
 		[Obsolete("Use Fixed16Dot16.MultiplyDivide() instead.")]
 		public static Fixed16Dot16 MulDiv(Fixed16Dot16 a, Fixed16Dot16 b, Fixed16Dot16 c)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_MulDiv((IntPtr)a.Value, (IntPtr)b.Value, (IntPtr)c.Value));
+			return Fixed16Dot16.FromRawValue((int)Methods.FT_MulDiv((IntPtr)a.Value, (IntPtr)b.Value, (IntPtr)c.Value));
 		}
 
 		/// <summary>
@@ -75,7 +73,7 @@ namespace SharpFont
 		[Obsolete("Use Fixed16Dot16.MultiplyFix() instead.")]
 		public static Fixed16Dot16 MulFix(int a, Fixed16Dot16 b)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_MulFix((IntPtr)a, (IntPtr)b.Value));
+			return Fixed16Dot16.FromRawValue((int)Methods.FT_MulFix((IntPtr)a, (IntPtr)b.Value));
 		}
 
 		/// <summary>
@@ -92,7 +90,7 @@ namespace SharpFont
 		[Obsolete("Use Fixed16Dot16.DivideFix() instead.")]
 		public static Fixed16Dot16 DivFix(int a, Fixed16Dot16 b)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_DivFix((IntPtr)a, (IntPtr)b.Value));
+			return Fixed16Dot16.FromRawValue((int)Methods.FT_DivFix((IntPtr)a, (IntPtr)b.Value));
 		}
 
 		/// <summary>
@@ -103,7 +101,7 @@ namespace SharpFont
 		[Obsolete("Use Fixed16Dot16.RoundFix() instead.")]
 		public static Fixed16Dot16 RoundFix(Fixed16Dot16 a)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_RoundFix((IntPtr)a.Value));
+			return Fixed16Dot16.FromRawValue((int)Methods.FT_RoundFix((IntPtr)a.Value));
 		}
 
 		/// <summary>
@@ -114,7 +112,7 @@ namespace SharpFont
 		[Obsolete("Use Fixed16Dot16.CeilingFix() instead.")]
 		public static Fixed16Dot16 CeilFix(Fixed16Dot16 a)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_CeilFix((IntPtr)a.Value));
+			return Fixed16Dot16.FromRawValue((int)Methods.FT_CeilFix((IntPtr)a.Value));
 		}
 
 		/// <summary>
@@ -125,7 +123,7 @@ namespace SharpFont
 		[Obsolete("Use Fixed16Dot16.FloorFix() instead.")]
 		public static Fixed16Dot16 FloorFix(Fixed16Dot16 a)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_FloorFix((IntPtr)a.Value));
+			return Fixed16Dot16.FromRawValue((int)Methods.FT_FloorFix((IntPtr)a.Value));
 		}
 
 		/// <summary>
@@ -139,7 +137,7 @@ namespace SharpFont
 		[Obsolete("Use Fixed16Dot16.Sin() instead.")]
 		public static Fixed16Dot16 Sin(Fixed16Dot16 angle)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_Sin((IntPtr)angle.Value));
+			return Fixed16Dot16.FromRawValue((int)Methods.FT_Sin((IntPtr)angle.Value));
 		}
 
 		/// <summary>
@@ -153,7 +151,7 @@ namespace SharpFont
 		[Obsolete("Use Fixed16Dot16.Cos() instead.")]
 		public static Fixed16Dot16 Cos(Fixed16Dot16 angle)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_Cos((IntPtr)angle.Value));
+			return Fixed16Dot16.FromRawValue((int)Methods.FT_Cos((IntPtr)angle.Value));
 		}
 
 		/// <summary>
@@ -164,7 +162,7 @@ namespace SharpFont
 		[Obsolete("Use Fixed16Dot16.Tan() instead.")]
 		public static Fixed16Dot16 Tan(Fixed16Dot16 angle)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_Tan((IntPtr)angle.Value));
+			return Fixed16Dot16.FromRawValue((int)Methods.FT_Tan((IntPtr)angle.Value));
 		}
 
 		/// <summary>
@@ -176,7 +174,7 @@ namespace SharpFont
 		[Obsolete("Use Fixed16Dot16.Atan2() instead.")]
 		public static Fixed16Dot16 Atan2(Fixed16Dot16 x, Fixed16Dot16 y)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_Atan2((IntPtr)x.Value, (IntPtr)y.Value));
+			return Fixed16Dot16.FromRawValue((int)Methods.FT_Atan2((IntPtr)x.Value, (IntPtr)y.Value));
 		}
 
 		/// <summary>
@@ -188,7 +186,7 @@ namespace SharpFont
 		[Obsolete("Use Fixed16Dot16.AngleDiff() instead.")]
 		public static Fixed16Dot16 AngleDiff(Fixed16Dot16 angle1, Fixed16Dot16 angle2)
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_Angle_Diff((IntPtr)angle1.Value, (IntPtr)angle2.Value));
+			return Fixed16Dot16.FromRawValue((int)Methods.FT_Angle_Diff((IntPtr)angle1.Value, (IntPtr)angle2.Value));
 		}
 
 		#endregion
@@ -209,7 +207,13 @@ namespace SharpFont
 
 			IntPtr fsspec;
 
-			Error err = FT_GetFile_From_Mac_Name(fontName, out fsspec, out faceIndex);
+			var pFontName = Marshal.StringToCoTaskMemUTF8(fontName);
+
+			nint realFaceIndex;
+			Error err = Methods.FT_GetFile_From_Mac_Name((sbyte*)pFontName, &fsspec, &realFaceIndex);
+			faceIndex = (int)realFaceIndex;
+
+			Marshal.FreeCoTaskMem(pFontName);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -231,7 +235,13 @@ namespace SharpFont
 
 			IntPtr fsspec;
 
-			Error err = FT_GetFile_From_Mac_ATS_Name(fontName, out fsspec, out faceIndex);
+			var pFontName = Marshal.StringToCoTaskMemUTF8(fontName);
+
+			nint realFaceIndex;
+			Error err = Methods.FT_GetFile_From_Mac_ATS_Name((sbyte*)pFontName, &fsspec, &realFaceIndex);
+			faceIndex = (int)realFaceIndex;
+
+			Marshal.FreeCoTaskMem(pFontName);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -256,9 +266,15 @@ namespace SharpFont
 
 			int faceIndex;
 
-			fixed (void* ptr = path)
+			fixed (byte* ptr = path)
 			{
-				Error err = FT_GetFilePath_From_Mac_ATS_Name(fontName, (IntPtr)ptr, path.Length, out faceIndex);
+				var pFontName = Marshal.StringToCoTaskMemUTF8(fontName);
+
+				nint realFaceIndex;
+				Error err = Methods.FT_GetFilePath_From_Mac_ATS_Name((sbyte*)pFontName, ptr, (uint)path.Length, &realFaceIndex);
+				faceIndex = (int)realFaceIndex;
+
+				Marshal.FreeCoTaskMem(pFontName);
 
 				if (err != Error.Ok)
 					throw new FreeTypeException(err);

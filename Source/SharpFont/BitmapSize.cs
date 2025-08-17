@@ -22,9 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 #endregion
 
-using System;
-using System.Runtime.InteropServices;
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -44,25 +42,19 @@ namespace SharpFont
 	/// contained in the bitmap strike itself. They are computed from the
 	/// global font parameters.
 	/// </para></remarks>
-	public sealed class BitmapSize
+	public sealed unsafe class BitmapSize
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private BitmapSizeRec rec;
+		private FT_Bitmap_Size_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal BitmapSize(IntPtr reference)
+		internal BitmapSize(FT_Bitmap_Size_* reference)
 		{
-			Reference = reference;
-		}
-
-		internal BitmapSize(BitmapSizeRec bmpSizeInt)
-		{
-			this.rec = bmpSizeInt;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -77,7 +69,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.height;
+				return reference->height;
 			}
 		}
 
@@ -88,7 +80,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.width;
+				return reference->width;
 			}
 		}
 
@@ -100,7 +92,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return Fixed26Dot6.FromRawValue((int)rec.size);
+				return Fixed26Dot6.FromRawValue((int)reference->size);
 			}
 		}
 
@@ -111,7 +103,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return Fixed26Dot6.FromRawValue((int)rec.x_ppem);
+				return Fixed26Dot6.FromRawValue((int)reference->x_ppem);
 			}
 		}
 
@@ -122,21 +114,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return Fixed26Dot6.FromRawValue((int)rec.y_ppem);
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<BitmapSizeRec>(reference);
+				return Fixed26Dot6.FromRawValue((int)reference->y_ppem);
 			}
 		}
 

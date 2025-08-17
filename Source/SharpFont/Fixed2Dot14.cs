@@ -161,7 +161,7 @@ namespace SharpFont
 		/// <returns>The result of the addition.</returns>
 		public static Fixed2Dot14 Add(Fixed2Dot14 left, Fixed2Dot14 right)
 		{
-			return Fixed2Dot14.FromRawValue((short)(left.value + right.value));
+			return FromRawValue((short)(left.value + right.value));
 		}
 
 		/// <summary>
@@ -172,7 +172,7 @@ namespace SharpFont
 		/// <returns>The result of the subtraction.</returns>
 		public static Fixed2Dot14 Subtract(Fixed2Dot14 left, Fixed2Dot14 right)
 		{
-			return Fixed2Dot14.FromRawValue((short)(left.value - right.value));
+			return FromRawValue((short)(left.value - right.value));
 		}
 
 		/// <summary>
@@ -183,7 +183,7 @@ namespace SharpFont
 		/// <returns>The result of the multiplication.</returns>
 		public static Fixed2Dot14 Multiply(Fixed2Dot14 left, Fixed2Dot14 right)
 		{
-			int mul = (int)left.value * (int)right.value;
+			int mul = left.value * right.value;
 			Fixed2Dot14 ans;
 			ans.value = (short)(mul >> 14);
 			return ans;
@@ -197,7 +197,7 @@ namespace SharpFont
 		/// <returns>The result of the division.</returns>
 		public static Fixed2Dot14 Divide(Fixed2Dot14 left, Fixed2Dot14 right)
 		{
-			int div = ((int)left.Value << 6) / right.value;
+			int div = (left.Value << 6) / right.value;
 			Fixed2Dot14 ans;
 			ans.value = (short)div;
 			return ans;
@@ -532,11 +532,10 @@ namespace SharpFont
 		public override bool Equals(object obj)
 		{
 			if (obj is Fixed2Dot14)
-				return this.Equals((Fixed2Dot14)obj);
-			else if (obj is int)
+				return Equals((Fixed2Dot14)obj);
+			if (obj is int)
 				return value == ((Fixed2Dot14)obj).value;
-			else
-				return false;
+			return false;
 		}
 
 		#endregion

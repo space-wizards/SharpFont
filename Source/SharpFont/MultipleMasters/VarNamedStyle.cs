@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.MultipleMasters.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.MultipleMasters
 {
@@ -34,20 +32,19 @@ namespace SharpFont.MultipleMasters
 	/// </para><para>
 	/// This structure can't be used for MM fonts.
 	/// </para></summary>
-	public class VarNamedStyle
+	public unsafe class VarNamedStyle
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private VarNamedStyleRec rec;
+		private FT_Var_Named_Style_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal VarNamedStyle(IntPtr reference)
+		internal VarNamedStyle(FT_Var_Named_Style_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -61,7 +58,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return rec.coords;
+				return (IntPtr)reference->coords;
 			}
 		}
 
@@ -73,21 +70,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return rec.strid;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<VarNamedStyleRec>(reference);
+				return reference->strid;
 			}
 		}
 

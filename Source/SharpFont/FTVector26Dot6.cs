@@ -50,15 +50,8 @@ namespace SharpFont
 		public FTVector26Dot6(Fixed26Dot6 x, Fixed26Dot6 y)
 			: this()
 		{
-			this.x = (IntPtr)x.Value;
-			this.y = (IntPtr)y.Value;
-		}
-
-		internal FTVector26Dot6(IntPtr reference)
-			: this()
-		{
-			this.x = Marshal.ReadIntPtr(reference);
-			this.y = Marshal.ReadIntPtr(reference, IntPtr.Size);
+			this.x = x.Value;
+			this.y = y.Value;
 		}
 
 		#endregion
@@ -77,7 +70,7 @@ namespace SharpFont
 
 			set
 			{
-				x = (IntPtr)value.Value;
+				x = value.Value;
 			}
 		}
 
@@ -93,7 +86,7 @@ namespace SharpFont
 
 			set
 			{
-				y = (IntPtr)value.Value;
+				y = value.Value;
 			}
 		}
 
@@ -145,9 +138,8 @@ namespace SharpFont
 		public override bool Equals(object obj)
 		{
 			if (obj is FTVector26Dot6)
-				return this.Equals((FTVector26Dot6)obj);
-			else
-				return false;
+				return Equals((FTVector26Dot6)obj);
+			return false;
 		}
 
 		/// <summary>

@@ -161,7 +161,7 @@ namespace SharpFont
 		/// <returns>The result of the addition.</returns>
 		public static Fixed26Dot6 Add(Fixed26Dot6 left, Fixed26Dot6 right)
 		{
-			return Fixed26Dot6.FromRawValue(left.value + right.value);
+			return FromRawValue(left.value + right.value);
 		}
 
 		/// <summary>
@@ -172,7 +172,7 @@ namespace SharpFont
 		/// <returns>The result of the subtraction.</returns>
 		public static Fixed26Dot6 Subtract(Fixed26Dot6 left, Fixed26Dot6 right)
 		{
-			return Fixed26Dot6.FromRawValue(left.value - right.value);
+			return FromRawValue(left.value - right.value);
 		}
 
 		/// <summary>
@@ -183,7 +183,7 @@ namespace SharpFont
 		/// <returns>The result of the multiplication.</returns>
 		public static Fixed26Dot6 Multiply(Fixed26Dot6 left, Fixed26Dot6 right)
 		{
-			long mul = (long)left.value * (long)right.value;
+			long mul = left.value * (long)right.value;
 			Fixed26Dot6 ans = new Fixed26Dot6();
 			ans.value = (int)(mul >> 6);
 			return ans;
@@ -565,11 +565,10 @@ namespace SharpFont
 		public override bool Equals(object obj)
 		{
 			if (obj is Fixed26Dot6)
-				return this.Equals((Fixed26Dot6)obj);
-			else if (obj is int)
+				return Equals((Fixed26Dot6)obj);
+			if (obj is int)
 				return value == ((Fixed26Dot6)obj).value;
-			else
-				return false;
+			return false;
 		}
 
 		#endregion

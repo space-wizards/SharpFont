@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -49,13 +47,13 @@ namespace SharpFont
 	{
 		#region Fields
 
-		private SizeMetricsRec rec;
+		private FT_Size_Metrics_ rec;
 
 		#endregion
 
 		#region Constructors
 
-		internal SizeMetrics(SizeMetricsRec metricsInternal)
+		internal SizeMetrics(FT_Size_Metrics_ metricsInternal)
 		{
 			rec = metricsInternal;
 		}

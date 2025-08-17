@@ -23,9 +23,8 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.MultipleMasters.Internal;
+using System.Runtime.CompilerServices;
+using SharpFont.Interop;
 
 namespace SharpFont.MultipleMasters
 {
@@ -34,20 +33,19 @@ namespace SharpFont.MultipleMasters
 	/// </para><para>
 	/// This structure can't be used for GX var fonts.
 	/// </para></summary>
-	public class MultiMaster
+	public unsafe class MultiMaster
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private MultiMasterRec rec;
+		private FT_Multi_Master_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal MultiMaster(IntPtr reference)
+		internal MultiMaster(FT_Multi_Master_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -62,7 +60,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return rec.num_axis;
+				return reference->num_axis;
 			}
 		}
 
@@ -75,7 +73,7 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				return rec.num_designs;
+				return reference->num_designs;
 			}
 		}
 
@@ -86,26 +84,12 @@ namespace SharpFont.MultipleMasters
 		{
 			get
 			{
-				MMAxis[] axis = new MMAxis[rec.num_axis];
+				MMAxis[] axis = new MMAxis[reference->num_axis];
 
-				for (int i = 0; i < rec.num_axis; i++)
-					axis[i] = new MMAxis(rec.axis[i]);
+				for (int i = 0; i < reference->num_axis; i++)
+					axis[i] = new MMAxis((FT_MM_Axis_*)Unsafe.AsPointer(ref reference->axis[i]));
 
 				return axis;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<MultiMasterRec>(reference);
 			}
 		}
 

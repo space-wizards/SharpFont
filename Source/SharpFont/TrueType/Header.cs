@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.TrueType.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.TrueType
 {
@@ -165,20 +163,19 @@ namespace SharpFont.TrueType
 	/// <summary>
 	/// A structure used to model a TrueType font header table. All fields follow the TrueType specification.
 	/// </summary>
-	public class Header
+	public unsafe class Header
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private HeaderRec rec;
+		private TT_Header_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal Header(IntPtr reference)
+		internal Header(TT_Header_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -192,7 +189,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (int)rec.Table_Version;
+				return (int)reference->Table_Version;
 			}
 		}
 
@@ -203,7 +200,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (int)rec.Font_Revision;
+				return (int)reference->Font_Revision;
 			}
 		}
 
@@ -214,7 +211,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (int)rec.Checksum_Adjust;
+				return (int)reference->CheckSum_Adjust;
 			}
 		}
 
@@ -225,7 +222,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (int)rec.Magic_Number;
+				return (int)reference->Magic_Number;
 			}
 		}
 
@@ -237,7 +234,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (HeaderFLags)rec.Flags;
+				return (HeaderFLags)reference->Flags;
 			}
 		}
 
@@ -249,7 +246,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.Units_Per_EM;
+				return reference->Units_Per_EM;
 			}
 		}
 
@@ -260,7 +257,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return new[] { (int)rec.created1, (int)rec.created2 };
+				return new[] { (int)reference->Created.e0, (int)reference->Created.e1 };
 			}
 		}
 
@@ -271,7 +268,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return new[] { (int)rec.modified1, (int)rec.modified2 };
+				return new[] { (int)reference->Modified.e0, (int)reference->Modified.e1 };
 			}
 		}
 
@@ -282,7 +279,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.xMin;
+				return reference->xMin;
 			}
 		}
 
@@ -293,7 +290,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.yMin;
+				return reference->yMin;
 			}
 		}
 
@@ -304,7 +301,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.xMax;
+				return reference->xMax;
 			}
 		}
 
@@ -315,7 +312,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.yMax;
+				return reference->yMax;
 			}
 		}
 
@@ -327,7 +324,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return (HeaderMacStyles)rec.Mac_Style;
+				return (HeaderMacStyles)reference->Mac_Style;
 			}
 		}
 
@@ -339,7 +336,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.Lowest_Rec_PPEM;
+				return reference->Lowest_Rec_PPEM;
 			}
 		}
 
@@ -350,7 +347,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.Font_Direction;
+				return reference->Font_Direction;
 			}
 		}
 
@@ -361,7 +358,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.Index_To_Loc_Format;
+				return reference->Index_To_Loc_Format;
 			}
 		}
 
@@ -372,21 +369,7 @@ namespace SharpFont.TrueType
 		{
 			get
 			{
-				return rec.Glyph_Data_Format;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<HeaderRec>(reference);
+				return reference->Glyph_Data_Format;
 			}
 		}
 

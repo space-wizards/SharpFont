@@ -22,8 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 #endregion
 
-using System;
-
 namespace SharpFont
 {
 	/// <summary>
@@ -128,7 +126,7 @@ namespace SharpFont
 		/// U+1900 - U+194F  // Limbu
 		/// U+1B80 - U+1BBF  // Sundanese
 		/// U+1C80 - U+1CDF  // Meetei Mayak
-		/// U+A800 - U+A82F  // Syloti Nagri 
+		/// U+A800 - U+A82F  // Syloti Nagri
 		/// U+11800 - U+118DF // Sharada
 		/// </code></para><para>
 		/// Note that currently Indic support is rudimentary only, missing blue zone support.

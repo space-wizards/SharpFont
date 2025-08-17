@@ -23,9 +23,9 @@ SOFTWARE.*/
 #endregion
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -37,12 +37,11 @@ namespace SharpFont
 	/// For now, the only pixel modes supported by FreeType are mono and grays. However, drivers might be added in the
 	/// future to support more ‘colorful’ options.
 	/// </remarks>
-	public sealed class FTBitmap : IDisposable
+	public sealed unsafe class FTBitmap : IDisposable
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private BitmapRec rec;
+		internal FT_Bitmap_* reference;
 
 		private Library library;
 
@@ -61,24 +60,16 @@ namespace SharpFont
 		/// <param name="library">The parent <see cref="Library"/>.</param>
 		public FTBitmap(Library library)
 		{
-			IntPtr bitmapRef = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(BitmapRec)));
-			FT.FT_Bitmap_New(bitmapRef);
-			Reference = bitmapRef;
+			reference = (FT_Bitmap_*)NativeMemory.Alloc((nuint)Unsafe.SizeOf<FT_Bitmap_>());
+			Methods.FT_Bitmap_New(reference);
 
 			this.library = library;
-			this.user = true;
+			user = true;
 		}
 
-		internal FTBitmap(IntPtr reference, Library library)
-		{
-			Reference = reference;
-			this.library = library;
-		}
-
-		internal FTBitmap(IntPtr reference, BitmapRec bmpInt, Library library)
+		internal FTBitmap(FT_Bitmap_* reference, Library library)
 		{
 			this.reference = reference;
-			this.rec = bmpInt;
 			this.library = library;
 		}
 
@@ -115,7 +106,7 @@ namespace SharpFont
 				if (disposed)
 					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
 
-				return rec.rows;
+				return (int)reference->rows;
 			}
 		}
 
@@ -129,7 +120,7 @@ namespace SharpFont
 				if (disposed)
 					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
 
-				return rec.width;
+				return (int)reference->width;
 			}
 		}
 
@@ -154,7 +145,7 @@ namespace SharpFont
 				if (disposed)
 					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
 
-				return rec.pitch;
+				return reference->pitch;
 			}
 		}
 
@@ -169,7 +160,7 @@ namespace SharpFont
 				if (disposed)
 					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
 
-				return rec.buffer;
+				return (IntPtr)reference->buffer;
 			}
 		}
 
@@ -184,7 +175,7 @@ namespace SharpFont
 				if (disposed)
 					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
 
-				return rec.num_grays;
+				return (short)reference->num_grays;
 			}
 		}
 
@@ -198,7 +189,7 @@ namespace SharpFont
 				if (disposed)
 					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
 
-				return rec.pixel_mode;
+				return (PixelMode)reference->pixel_mode;
 			}
 		}
 
@@ -213,7 +204,7 @@ namespace SharpFont
 				if (disposed)
 					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
 
-				return rec.palette_mode;
+				return reference->palette_mode;
 			}
 		}
 
@@ -228,7 +219,7 @@ namespace SharpFont
 				if (disposed)
 					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
 
-				return rec.palette;
+				return (IntPtr)reference->palette;
 			}
 		}
 
@@ -243,29 +234,9 @@ namespace SharpFont
 					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
 
 				//TODO deal with negative pitch
-				byte[] data = new byte[rec.rows * rec.pitch];
-				Marshal.Copy(rec.buffer, data, 0, data.Length);
+				byte[] data = new byte[reference->rows * reference->pitch];
+				Marshal.Copy((nint)reference->buffer, data, 0, data.Length);
 				return data;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				return reference;
-			}
-
-			set
-			{
-				if (disposed)
-					throw new ObjectDisposedException("FTBitmap", "Cannot access a disposed object.");
-
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<BitmapRec>(reference);
 			}
 		}
 
@@ -287,9 +258,7 @@ namespace SharpFont
 				throw new ArgumentNullException("library");
 
 			FTBitmap newBitmap = new FTBitmap(library);
-			IntPtr bmpRef = newBitmap.reference;
-			Error err = FT.FT_Bitmap_Copy(library.Reference, Reference, bmpRef);
-			newBitmap.Reference = bmpRef;
+			Error err = Methods.FT_Bitmap_Copy(library.reference, reference, newBitmap.reference);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -323,7 +292,7 @@ namespace SharpFont
 			if (library == null)
 				throw new ArgumentNullException("library");
 
-			Error err = FT.FT_Bitmap_Embolden(library.Reference, Reference, (IntPtr)xStrength.Value, (IntPtr)yStrength.Value);
+			Error err = Methods.FT_Bitmap_Embolden(library.reference, reference, (IntPtr)xStrength.Value, (IntPtr)yStrength.Value);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -355,9 +324,7 @@ namespace SharpFont
 				throw new ArgumentNullException("library");
 
 			FTBitmap newBitmap = new FTBitmap(library);
-			IntPtr bmpRef = newBitmap.reference;
-			Error err = FT.FT_Bitmap_Convert(library.Reference, Reference, bmpRef, alignment);
-			newBitmap.Reference = bmpRef;
+			Error err = Methods.FT_Bitmap_Convert(library.reference, reference, newBitmap.reference, alignment);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -384,11 +351,11 @@ namespace SharpFont
 
 				if (user)
 				{
-					FT.FT_Bitmap_Done(library.Reference, reference);
-					Marshal.FreeHGlobal(reference);
+					Methods.FT_Bitmap_Done(library.reference, reference);
+					Marshal.FreeHGlobal((IntPtr)reference);
 				}
 
-				reference = IntPtr.Zero;
+				reference = null;
 				library = null;
 			}
 		}

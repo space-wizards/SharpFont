@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -33,20 +31,19 @@ namespace SharpFont
 	/// A union type used to store either a long or a pointer. This is used to store a file descriptor or a ‘FILE*’ in
 	/// an input stream.
 	/// </summary>
-	public class StreamDesc
+	public unsafe class StreamDesc
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private StreamDescRec rec;
+		private FT_StreamDesc_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal StreamDesc(IntPtr reference)
+		internal StreamDesc(FT_StreamDesc_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -60,7 +57,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return (int)rec.value;
+				return (int)reference->value;
 			}
 		}
 
@@ -71,21 +68,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.pointer;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<StreamDescRec>(reference);
+				return (IntPtr)reference->pointer;
 			}
 		}
 

@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -55,18 +54,21 @@ namespace SharpFont
 	/// <summary>
 	/// A handle to an input stream.
 	/// </summary>
-	public sealed class FTStream : NativeObject
+	public sealed unsafe class FTStream : NativeObject
 	{
 		#region Fields
 
-		private StreamRec rec;
+		internal FT_StreamRec_* reference;
 
 		#endregion
 
+		internal override IntPtr UntypedReference => (nint)reference;
+
 		#region Constructors
 
-		internal FTStream(IntPtr reference): base(reference)
+		internal FTStream(FT_StreamRec_* reference)
 		{
+			this.reference = reference;
 		}
 
 		#endregion
@@ -81,10 +83,10 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.@base;
+				return (IntPtr)reference->@base;
 			}
 		}
-		
+
 		/// <summary>
 		/// Gets the stream size in bytes.
 		/// </summary>
@@ -93,7 +95,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return (uint)rec.size;
+				return (uint)reference->size;
 			}
 		}
 
@@ -105,7 +107,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return (uint)rec.pos;
+				return (uint)reference->pos;
 			}
 		}
 
@@ -117,7 +119,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new StreamDesc(PInvokeHelper.AbsoluteOffsetOf<StreamRec>(Reference, "descriptor"));
+				return new StreamDesc(&reference->descriptor);
 			}
 		}
 
@@ -129,7 +131,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new StreamDesc(PInvokeHelper.AbsoluteOffsetOf<StreamRec>(Reference, "pathname"));
+				return new StreamDesc(&reference->pathname);
 			}
 		}
 
@@ -141,7 +143,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.read;
+				return Marshal.GetDelegateForFunctionPointer<StreamIOFunc>((nint)reference->read);
 			}
 		}
 
@@ -152,7 +154,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.close;
+				return Marshal.GetDelegateForFunctionPointer<StreamCloseFunc>((nint)reference->close);
 			}
 		}
 
@@ -164,7 +166,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return new Memory(PInvokeHelper.AbsoluteOffsetOf<StreamRec>(Reference, "memory"));
+				return new Memory(reference->memory);
 			}
 		}
 
@@ -175,7 +177,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.cursor;
+				return (IntPtr)reference->cursor;
 			}
 		}
 
@@ -186,21 +188,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.limit;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<StreamRec>(value);
+				return (IntPtr)reference->limit;
 			}
 		}
 
@@ -234,7 +222,7 @@ namespace SharpFont
 		/// <param name="source">The source stream.</param>
 		public void OpenGzip(FTStream source)
 		{
-			Error err = FT.FT_Stream_OpenGzip(Reference, source.Reference);
+			Error err = Methods.FT_Stream_OpenGzip(reference, source.reference);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -268,7 +256,7 @@ namespace SharpFont
 		/// <param name="source">The source stream.</param>
 		public void OpenLzw(FTStream source)
 		{
-			Error err = FT.FT_Stream_OpenLZW(Reference, source.Reference);
+			Error err = Methods.FT_Stream_OpenLZW(reference, source.reference);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);
@@ -302,7 +290,7 @@ namespace SharpFont
 		/// <param name="source">The source stream.</param>
 		public void StreamOpenBzip2(FTStream source)
 		{
-			Error err = FT.FT_Stream_OpenBzip2(Reference, source.Reference);
+			Error err = Methods.FT_Stream_OpenBzip2(reference, source.reference);
 
 			if (err != Error.Ok)
 				throw new FreeTypeException(err);

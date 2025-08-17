@@ -23,9 +23,7 @@ SOFTWARE.*/
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-
-using SharpFont.Cache.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont.Cache
 {
@@ -34,20 +32,19 @@ namespace SharpFont.Cache
 	/// anti-aliased pixmaps) in a much more efficient way than the traditional glyph image cache implemented by
 	/// <see cref="ImageCache"/>.
 	/// </summary>
-	public class SBit
+	public unsafe class SBit
 	{
 		#region Fields
 
-		private IntPtr reference;
-		private SBitRec rec;
+		private FTC_SBitRec_* reference;
 
 		#endregion
 
 		#region Constructors
 
-		internal SBit(IntPtr reference)
+		internal SBit(FTC_SBitRec_* reference)
 		{
-			Reference = reference;
+			this.reference = reference;
 		}
 
 		#endregion
@@ -61,7 +58,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.width;
+				return reference->width;
 			}
 		}
 
@@ -72,7 +69,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.height;
+				return reference->height;
 			}
 		}
 
@@ -84,7 +81,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.left;
+				return (byte)reference->left;
 			}
 		}
 
@@ -96,7 +93,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.top;
+				return (byte)reference->top;
 			}
 		}
 
@@ -107,7 +104,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.format;
+				return reference->format;
 			}
 		}
 
@@ -118,7 +115,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.max_grays;
+				return reference->max_grays;
 			}
 		}
 
@@ -129,7 +126,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.pitch;
+				return reference->pitch;
 			}
 		}
 
@@ -140,7 +137,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.xadvance;
+				return (byte)reference->xadvance;
 			}
 		}
 
@@ -151,7 +148,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.yadvance;
+				return (byte)reference->yadvance;
 			}
 		}
 
@@ -162,21 +159,7 @@ namespace SharpFont.Cache
 		{
 			get
 			{
-				return rec.buffer;
-			}
-		}
-
-		internal IntPtr Reference
-		{
-			get
-			{
-				return reference;
-			}
-
-			set
-			{
-				reference = value;
-				rec = PInvokeHelper.PtrToStructure<SBitRec>(reference);
+				return (IntPtr)reference->buffer;
 			}
 		}
 

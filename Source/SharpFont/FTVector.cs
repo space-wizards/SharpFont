@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -33,7 +32,7 @@ namespace SharpFont
 	/// A simple structure used to store a 2D vector.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	public struct FTVector : IEquatable<FTVector>
+	public unsafe struct FTVector : IEquatable<FTVector>
 	{
 		#region Fields
 
@@ -52,15 +51,8 @@ namespace SharpFont
 		public FTVector(Fixed16Dot16 x, Fixed16Dot16 y)
 			: this()
 		{
-			this.x = (IntPtr)x.Value;
-			this.y = (IntPtr)y.Value;
-		}
-
-		internal FTVector(IntPtr reference)
-			: this()
-		{
-			this.x = Marshal.ReadIntPtr(reference);
-			this.y = Marshal.ReadIntPtr(reference, IntPtr.Size);
+			this.x = x.Value;
+			this.y = y.Value;
 		}
 
 		#endregion
@@ -79,7 +71,7 @@ namespace SharpFont
 
 			set
 			{
-				x = (IntPtr)value.Value;
+				x = value.Value;
 			}
 		}
 
@@ -95,7 +87,7 @@ namespace SharpFont
 
 			set
 			{
-				y = (IntPtr)value.Value;
+				y = value.Value;
 			}
 		}
 
@@ -140,7 +132,7 @@ namespace SharpFont
 		public static FTVector Unit(Fixed16Dot16 angle)
 		{
 			FTVector vec;
-			FT.FT_Vector_Unit(out vec, (IntPtr)angle.Value);
+			Methods.FT_Vector_Unit(&vec, angle.Value);
 
 			return vec;
 		}
@@ -154,7 +146,7 @@ namespace SharpFont
 		public static FTVector FromPolar(Fixed16Dot16 length, Fixed16Dot16 angle)
 		{
 			FTVector vec;
-			FT.FT_Vector_From_Polar(out vec, (IntPtr)length.Value, (IntPtr)angle.Value);
+			Methods.FT_Vector_From_Polar(&vec, length.Value, angle.Value);
 
 			return vec;
 		}
@@ -168,7 +160,10 @@ namespace SharpFont
 		/// <param name="matrix">A pointer to the source 2x2 matrix.</param>
 		public void Transform(FTMatrix matrix)
 		{
-			FT.FT_Vector_Transform(ref this, ref matrix);
+			fixed (FTVector* pThis = &this)
+			{
+				Methods.FT_Vector_Transform(pThis, &matrix);
+			}
 		}
 
 		/// <summary>
@@ -177,7 +172,10 @@ namespace SharpFont
 		/// <param name="angle">The address of angle.</param>
 		public void Rotate(Fixed16Dot16 angle)
 		{
-			FT.FT_Vector_Rotate(ref this, (IntPtr)angle.Value);
+			fixed (FTVector* pThis = &this)
+			{
+				Methods.FT_Vector_Rotate(pThis, (nint)angle);
+			}
 		}
 
 		/// <summary>
@@ -186,7 +184,10 @@ namespace SharpFont
 		/// <returns>The vector length, expressed in the same units that the original vector coordinates.</returns>
 		public Fixed16Dot16 Length()
 		{
-			return Fixed16Dot16.FromRawValue((int)FT.FT_Vector_Length(ref this));
+			fixed (FTVector* pThis = &this)
+			{
+				return Fixed16Dot16.FromRawValue((int)Methods.FT_Vector_Length(pThis));
+			}
 		}
 
 		/// <summary>
@@ -197,7 +198,10 @@ namespace SharpFont
 		public void Polarize(out Fixed16Dot16 length, out Fixed16Dot16 angle)
 		{
 			IntPtr tmpLength, tmpAngle;
-			FT.FT_Vector_Polarize(ref this, out tmpLength, out tmpAngle);
+			fixed (FTVector* pThis = &this)
+			{
+				Methods.FT_Vector_Polarize(pThis, &tmpLength, &tmpAngle);
+			}
 
 			length = Fixed16Dot16.FromRawValue((int)tmpLength);
 			angle = Fixed16Dot16.FromRawValue((int)tmpAngle);
@@ -221,9 +225,8 @@ namespace SharpFont
 		public override bool Equals(object obj)
 		{
 			if (obj is FTVector)
-				return this.Equals((FTVector)obj);
-			else
-				return false;
+				return Equals((FTVector)obj);
+			return false;
 		}
 
 		/// <summary>

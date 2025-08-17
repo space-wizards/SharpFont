@@ -24,8 +24,7 @@ SOFTWARE.*/
 
 using System;
 using System.Runtime.InteropServices;
-
-using SharpFont.Internal;
+using SharpFont.Interop;
 
 namespace SharpFont
 {
@@ -105,18 +104,21 @@ namespace SharpFont
 	/// <summary>
 	/// A structure used to describe a given raster class to the library.
 	/// </summary>
-	public class RasterFuncs: NativeObject
+	public unsafe class RasterFuncs: NativeObject
 	{
 		#region Fields
 
-		private RasterFuncsRec rec;
+		internal FT_Raster_Funcs_* reference;
 
 		#endregion
 
+		internal override IntPtr UntypedReference => (nint)reference;
+
 		#region Constructors
 
-		internal RasterFuncs(IntPtr reference) : base(reference)
+		internal RasterFuncs(FT_Raster_Funcs_* reference)
 		{
+			this.reference = reference;
 		}
 
 		#endregion
@@ -131,7 +133,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.glyph_format;
+				return reference->glyph_format;
 			}
 		}
 
@@ -142,7 +144,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.raster_new;
+				return Marshal.GetDelegateForFunctionPointer<RasterNewFunc>((IntPtr)reference->raster_new);
 			}
 		}
 
@@ -153,7 +155,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.raster_reset;
+				return Marshal.GetDelegateForFunctionPointer<RasterResetFunc>((IntPtr)reference->raster_reset);
 			}
 		}
 
@@ -165,7 +167,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.raster_set_mode;
+				return Marshal.GetDelegateForFunctionPointer<RasterSetModeFunc>((IntPtr)reference->raster_set_mode);
 			}
 		}
 
@@ -176,7 +178,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.raster_render;
+				return Marshal.GetDelegateForFunctionPointer<RasterRenderFunc>((IntPtr)reference->raster_render);
 			}
 		}
 
@@ -187,21 +189,7 @@ namespace SharpFont
 		{
 			get
 			{
-				return rec.raster_done;
-			}
-		}
-
-		internal override IntPtr Reference
-		{
-			get
-			{
-				return base.Reference;
-			}
-
-			set
-			{
-				base.Reference = value;
-				rec = PInvokeHelper.PtrToStructure<RasterFuncsRec>(value);
+				return Marshal.GetDelegateForFunctionPointer<RasterDoneFunc>((IntPtr)reference->raster_done);
 			}
 		}
 
