@@ -82,6 +82,6 @@ namespace SharpFont
 		/// the outside of a glyph contour, respectively.  The distance units are
 		/// arbitrarily determined by an adjustable @spread property.
 		/// </summary>
-		RenderModeSdf,
+		Sdf,
 	}
 }
