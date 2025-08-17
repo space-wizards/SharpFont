@@ -4,7 +4,7 @@
 		<OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-		<PackageReference Include="System.Drawing.Common" Version="4.6.0" />
+		<PackageReference Include="System.Drawing.Common" Version="9.0.8" />
 	</ItemGroup>
 <!--  <ItemGroup>
     <Content Include="..\..\Dependencies\SharpFont\Dependencies\freetype2\2.5.5\msvc10\x86\freetype6.dll">
