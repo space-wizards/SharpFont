@@ -31,6 +31,10 @@ The equivalent code in C# with SharpFont is:
 Face face = new Face(library, "./myfont.ttf");
 ```
 
+## Release Notes
+
+See [RELEASE-NOTES.md](./RELEASE-NOTES.md)
+
 ## Quick Start
 
 ### NuGet
