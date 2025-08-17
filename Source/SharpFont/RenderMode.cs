@@ -74,5 +74,14 @@ namespace SharpFont
 		/// use the <see cref="PixelMode.VerticalLcd"/> mode.
 		/// </summary>
 		VerticalLcd,
+
+		/// <summary>
+		/// The positive (unsigned) 8-bit bitmap values can be converted to the
+		/// single-channel signed distance field (SDF) by subtracting 128, with
+		/// the positive and negative results corresponding to the inside and
+		/// the outside of a glyph contour, respectively.  The distance units are
+		/// arbitrarily determined by an adjustable @spread property.
+		/// </summary>
+		RenderModeSdf,
 	}
 }
