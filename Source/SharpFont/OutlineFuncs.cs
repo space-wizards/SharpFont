@@ -317,10 +317,10 @@ namespace SharpFont
 			{
 				ThrowIfDisposed();
 				var r = new FT_Outline_Funcs_();
-				r.move_to = (delegate* unmanaged[Cdecl]<FTVector*, void*, int>)Marshal.GetFunctionPointerForDelegate(moveToPtr);
-				r.line_to = (delegate* unmanaged[Cdecl]<FTVector*, void*, int>)Marshal.GetFunctionPointerForDelegate(lineToPtr);
-				r.conic_to = (delegate* unmanaged[Cdecl]<FTVector*, FTVector*, void*, int>)Marshal.GetFunctionPointerForDelegate(conicToPtr);
-				r.cubic_to = (delegate* unmanaged[Cdecl]<FTVector*, FTVector*, FTVector*, void*, int>)Marshal.GetFunctionPointerForDelegate(cubicToPtr);
+				r.move_to = (delegate* unmanaged[Cdecl]<FTVector*, void*, int>)moveToPtr;
+				r.line_to = (delegate* unmanaged[Cdecl]<FTVector*, void*, int>)lineToPtr;
+				r.conic_to = (delegate* unmanaged[Cdecl]<FTVector*, FTVector*, void*, int>)conicToPtr;
+				r.cubic_to = (delegate* unmanaged[Cdecl]<FTVector*, FTVector*, FTVector*, void*, int>)cubicToPtr;
 				return r;
 			}
 		}
