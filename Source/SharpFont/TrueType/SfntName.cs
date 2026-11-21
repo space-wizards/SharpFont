@@ -25,6 +25,7 @@ SOFTWARE.*/
 using System;
 using System.Runtime.InteropServices;
 using SharpFont.Interop;
+using static System.Text.Encoding;
 
 namespace SharpFont.TrueType
 {
@@ -107,8 +108,11 @@ namespace SharpFont.TrueType
 		}
 
 		/// <summary>
-		/// This property returns <see cref="StringPtr"/> interpreted as UTF-16.
+		/// This property returns <see cref="StringPtr"/> interpreted as UTF-16 BE.
 		/// </summary>
+		/// <remarks>
+		///	Note that this currently only supports strings encoded as UTF-16 big endian.
+		/// </remarks>
 		public string String
 		{
 			get
@@ -116,7 +120,7 @@ namespace SharpFont.TrueType
 				//TODO it may be possible to consolidate all of these properties
 				//if the strings follow some sane structure. Otherwise, leave
 				//them or add more overloads for common encodings like UTF-8.
-				return Marshal.PtrToStringUni((IntPtr)rec.@string, (int) Math.Ceiling(rec.string_len/2.0));
+				return BigEndianUnicode.GetString(rec.@string, (int)rec.string_len);
 			}
 		}
 
