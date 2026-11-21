@@ -25,11 +25,13 @@ SOFTWARE.*/
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 using SharpFont.Bdf;
 using SharpFont.Interop;
 using SharpFont.MultipleMasters;
 using SharpFont.PostScript;
 using SharpFont.TrueType;
+using static System.Text.Encoding;
 using Header = SharpFont.Fnt.Header;
 
 namespace SharpFont
@@ -1927,6 +1929,28 @@ namespace SharpFont
 				throw new FreeTypeException(err);
 
 			return new SfntName(nameRec);
+		}
+
+		/// <summary>
+		/// Retrieves the language string associated with the language id.
+		/// </summary>
+		/// <param name="languageId">The language id</param>
+		/// <returns>The language string</returns>
+		/// <exception cref="FreeTypeException">If it fails to get the language tag</exception>
+		[CLSCompliant(false)]
+		public string GetLangTag(ushort languageId)
+		{
+			FT_SfntLangTag_ langTagRec;
+
+			var err = Methods.FT_Get_Sfnt_LangTag(reference, languageId, &langTagRec);
+
+			if (err != Error.Ok)
+				throw new FreeTypeException(err);
+
+			if (langTagRec.@string == null)
+				return null;
+
+			return BigEndianUnicode.GetString(langTagRec.@string, (int)langTagRec.string_len);
 		}
 
 		#endregion
