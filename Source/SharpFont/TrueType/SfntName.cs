@@ -120,6 +120,9 @@ namespace SharpFont.TrueType
 				//TODO it may be possible to consolidate all of these properties
 				//if the strings follow some sane structure. Otherwise, leave
 				//them or add more overloads for common encodings like UTF-8.
+				if (rec.@string == null)
+					return null;
+
 				return BigEndianUnicode.GetString(rec.@string, (int)rec.string_len);
 			}
 		}
